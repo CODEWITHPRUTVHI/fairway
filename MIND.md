@@ -20,8 +20,10 @@ Key capabilities include:
 ## 2. Architecture & Technology Stack
 - **Mobile Frontend**: React 19 + TypeScript, Tailwind CSS v4, Lucide React icons.
 - **Form Factors**:
-  - High-fidelity touch smartphone simulator (iOS / Android frame with status bar, safe area, and device notch).
-  - Responsive Full-Canvas desktop view for operational audits.
+  - **Edge-to-Edge Native Mobile Experience**: On mobile devices and installed PWA mode, the app takes 100% full screen with no fake phone bezels, no fake notch, and no nested scrollbars. Features a floating role-switch capsule for quick testing.
+  - **Clean Pro App Card (Desktop)**: On desktop viewports, displays as a sleek, modern app container without fake hardware buttons or plastic frames.
+  - **Dual Simulator**: Side-by-side Rider & Driver view for seamless dual interaction.
+  - **PWA Installation**: Production-grade Progressive Web App with manifest.json (192px/512px icons), service worker cache (sw.js), and native OS install trigger.
 - **Role Experiences**:
   - **Customer Mobile App**: Ola/Uber style booking, route comparison, live grouping, stand navigation, Ride OTP, in-trip tracking, safety SOS.
   - **Driver Mobile App**: Standalone dispatch console, audio ride popup, navigation, OTP validation, 1-by-1 dropoffs, earnings wallet.

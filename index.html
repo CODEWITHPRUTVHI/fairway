@@ -11,12 +11,29 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="FAIRWAY" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta property="og:title" content="FAIRWAY Nashik - Auto Rickshaw Share Pooling" />
     <meta property="og:description" content="Real-time algorithmic Auto Rickshaw pooling for Nashik District (MH-15) with hard 15% detour limits and Shapley Value fare allocation." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Register Progressive Web App Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(
+            (reg) => {
+              console.log('FAIRWAY PWA Service Worker registered:', reg.scope);
+            },
+            (err) => {
+              console.warn('FAIRWAY SW registration failed:', err);
+            }
+          );
+        });
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-slate-950 antialiased selection:bg-[#FCC016] selection:text-slate-900">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

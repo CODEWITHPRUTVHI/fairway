@@ -6,13 +6,16 @@
   - **Deployed to Netlify Production**:
     - **Production URL**: [https://fairway-auto.netlify.app](https://fairway-auto.netlify.app)
     - **GitHub Repository**: [https://github.com/CODEWITHPRUTVHI/fairway](https://github.com/CODEWITHPRUTVHI/fairway)
-  - **App Install Popup & PWA Integration**:
-    - Created `InstallAppModal.tsx` that triggers an install prompt modal upon platform open.
-    - Features smart OS tab detection (Android, iOS Safari, Desktop), instant home screen installation progress, and native `beforeinstallprompt` listener.
-    - Added PWA `public/manifest.json` and mobile meta tags in `index.html`.
-    - Added an "Install App" button in the top navigation bar to re-trigger the popup anytime.
-  - **Dual Device Viewport Integration**:
-    - Introduced `DUAL_SIMULATOR` mode to `DeviceFrame` and `App.tsx`, providing simultaneous side-by-side presentation and live testing of the Passenger App and Auto Driver App on one screen.
+  - **Mobile Full-Screen & Fake Mockup Removal**:
+    - Completely eliminated the artificial iPhone frame (`PhoneDeviceShell`) with fake volume buttons, dynamic island, and nested scrollbars.
+    - Mobile devices and standalone PWA mode now render **100% full screen edge-to-edge** without outer header crowding or mockup shells.
+    - Mobile view includes a floating role switcher capsule for instant 1-tap switching between Passenger and Driver.
+    - Desktop view now renders sleek, borderless modern app containers (`CleanAppContainer`) for both Single and Dual Simulator views.
+  - **PWA Installation & Download Fixes**:
+    - Generated production-grade PNG icons (`public/icon-192.png`, `public/icon-512.png`, `public/apple-touch-icon.png`, `public/favicon.svg`).
+    - Configured complete `public/manifest.json` with maskable icons and standalone display mode.
+    - Added and registered `public/sw.js` Progressive Web App Service Worker for offline resilience and native installability.
+    - Updated `InstallAppModal.tsx` to use `localStorage` dismissal (preventing annoying repetitive popups on reload) and trigger native `beforeinstallprompt` OS installation.
   - **100% Working Passenger & Driver Flow**:
     - **AuthScreen**: Added 1-tap quick demo login buttons for Passenger (Pooja Sharma), Driver (Ramesh Kaka), and Dispatcher, plus dual-mode quick sign-in.
     - **Trip State Machine (PRD Section 12)**:
