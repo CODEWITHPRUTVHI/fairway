@@ -18,11 +18,47 @@ interface DeviceFrameProps {
   children: React.ReactNode;
 }
 
+export const PhoneDeviceShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="relative w-[385px] h-[812px] max-h-[92vh] bg-black rounded-[48px] p-3 shadow-2xl ring-1 ring-slate-800 border-4 border-slate-800 flex flex-col shrink-0">
+      {/* Physical Frame Buttons simulation */}
+      <div className="absolute -left-1.5 top-24 w-1 h-12 bg-slate-700 rounded-l" />
+      <div className="absolute -left-1.5 top-40 w-1 h-12 bg-slate-700 rounded-l" />
+      <div className="absolute -right-1.5 top-32 w-1 h-16 bg-slate-700 rounded-r" />
+
+      {/* Inner Phone Screen */}
+      <div className="relative w-full h-full bg-white rounded-[38px] overflow-hidden flex flex-col text-slate-900 shadow-inner">
+        {/* iOS Status Bar */}
+        <div className="h-10 bg-white/95 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-40 select-none text-xs font-semibold text-slate-900 border-b border-slate-100/40">
+          <span>9:41</span>
+          {/* Dynamic Island Pill */}
+          <div className="w-24 h-4.5 bg-black rounded-full flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-900 mr-2" />
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400/80 animate-pulse" />
+          </div>
+          <div className="flex items-center gap-1.5 text-slate-800">
+            <Wifi className="w-3.5 h-3.5" />
+            <Battery className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Mobile Viewport Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+          {children}
+        </div>
+
+        {/* iOS Home Indicator Bar */}
+        <div className="h-5 bg-white/95 backdrop-blur flex items-center justify-center shrink-0 z-40">
+          <div className="w-32 h-1 bg-slate-300 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
   const { state, setRole, setViewportMode, resetDemoState, setLanguage } = useFairwayStore();
   const t = TRANSLATIONS[state.language || 'en'];
-
-  const isPhoneMode = state.viewportMode === 'PHONE_SIMULATOR';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -136,27 +172,47 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
             </button>
           </div>
 
-          <button
-            onClick={() =>
-              setViewportMode(
-                isPhoneMode ? 'RESPONSIVE_CANVAS' : 'PHONE_SIMULATOR'
-              )
-            }
-            title={isPhoneMode ? 'Switch to Fullscreen' : 'Switch to Phone View'}
-            className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 cursor-pointer transition-colors"
-          >
-            {isPhoneMode ? (
-              <>
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">Full Canvas</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline">Phone Frame</span>
-              </>
-            )}
-          </button>
+          {/* Viewport Mode Switcher: Phone / Dual / Canvas */}
+          <div className="flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-[11px] font-bold">
+            <button
+              onClick={() => setViewportMode('PHONE_SIMULATOR')}
+              title="Single Phone Frame"
+              className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors ${
+                state.viewportMode === 'PHONE_SIMULATOR'
+                  ? 'bg-[#FCC016] text-slate-950 shadow-sm font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Phone</span>
+            </button>
+
+            <button
+              onClick={() => setViewportMode('DUAL_SIMULATOR')}
+              title="Dual Phone View: Passenger + Driver Side-by-Side"
+              className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors ${
+                state.viewportMode === 'DUAL_SIMULATOR'
+                  ? 'bg-[#FCC016] text-slate-950 shadow-sm font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>📱📱</span>
+              <span className="hidden sm:inline">Dual</span>
+            </button>
+
+            <button
+              onClick={() => setViewportMode('RESPONSIVE_CANVAS')}
+              title="Full Responsive Canvas"
+              className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors ${
+                state.viewportMode === 'RESPONSIVE_CANVAS'
+                  ? 'bg-[#FCC016] text-slate-950 shadow-sm font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Canvas</span>
+            </button>
+          </div>
 
           <button
             onClick={resetDemoState}
@@ -170,41 +226,10 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
 
       {/* Main Container */}
       <main className="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-auto">
-        {isPhoneMode ? (
-          /* Phone Device Shell */
-          <div className="relative w-[385px] h-[812px] max-h-[92vh] bg-black rounded-[48px] p-3 shadow-2xl ring-1 ring-slate-800 border-4 border-slate-800 flex flex-col shrink-0">
-            {/* Physical Frame Buttons simulation */}
-            <div className="absolute -left-1.5 top-24 w-1 h-12 bg-slate-700 rounded-l" />
-            <div className="absolute -left-1.5 top-40 w-1 h-12 bg-slate-700 rounded-l" />
-            <div className="absolute -right-1.5 top-32 w-1 h-16 bg-slate-700 rounded-r" />
-
-            {/* Inner Phone Screen */}
-            <div className="relative w-full h-full bg-white rounded-[38px] overflow-hidden flex flex-col text-slate-900 shadow-inner">
-              {/* iOS Status Bar */}
-              <div className="h-10 bg-white/95 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-40 select-none text-xs font-semibold text-slate-900 border-b border-slate-100/40">
-                <span>9:41</span>
-                {/* Dynamic Island Pill */}
-                <div className="w-24 h-4.5 bg-black rounded-full flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 rounded-full bg-slate-900 mr-2" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400/80 animate-pulse" />
-                </div>
-                <div className="flex items-center gap-1.5 text-slate-800">
-                  <Wifi className="w-3.5 h-3.5" />
-                  <Battery className="w-4 h-4" />
-                </div>
-              </div>
-
-              {/* Mobile Viewport Content */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
-                {children}
-              </div>
-
-              {/* iOS Home Indicator Bar */}
-              <div className="h-5 bg-white/95 backdrop-blur flex items-center justify-center shrink-0 z-40">
-                <div className="w-32 h-1 bg-slate-300 rounded-full" />
-              </div>
-            </div>
-          </div>
+        {state.viewportMode === 'DUAL_SIMULATOR' ? (
+          children
+        ) : state.viewportMode === 'PHONE_SIMULATOR' ? (
+          <PhoneDeviceShell>{children}</PhoneDeviceShell>
         ) : (
           /* Full Responsive Canvas */
           <div className="w-full max-w-6xl h-full bg-white text-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col border border-slate-800">

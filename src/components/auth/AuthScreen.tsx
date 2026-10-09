@@ -23,7 +23,7 @@ interface AuthScreenProps {
 export const AuthScreen: React.FC<AuthScreenProps> = ({
   initialRole = 'CUSTOMER',
 }) => {
-  const { loginCustomer, loginDriver, loginAdmin, setRole } = useFairwayStore();
+  const { loginCustomer, loginDriver, loginAdmin, setRole, quickDemoLoginBoth } = useFairwayStore();
   const [authRole, setAuthRole] = useState<'CUSTOMER' | 'DRIVER' | 'ADMIN'>(initialRole);
   const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
 
@@ -245,6 +245,61 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               <span>{feedbackMsg.text}</span>
             </div>
           )}
+
+          {/* QUICK 1-TAP DEMO ACCESS CARD */}
+          <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-2.5 space-y-2 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black text-amber-950 uppercase tracking-wide flex items-center gap-1">
+                <span>⚡</span> 1-TAP DEMO INSTANT ACCESS
+              </span>
+              <button
+                type="button"
+                onClick={quickDemoLoginBoth}
+                className="text-[9px] font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 px-2 py-0.5 rounded cursor-pointer transition-colors"
+              >
+                Sign In Both (Dual Mode)
+              </button>
+            </div>
+
+            {authRole === 'CUSTOMER' && (
+              <button
+                type="button"
+                onClick={() => {
+                  loginCustomer('Pooja Sharma', '+91 98221 44556', 'female');
+                  setRole('CUSTOMER');
+                }}
+                className="w-full py-2 bg-[#FCC016] hover:bg-amber-400 text-[#1E1E1E] font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>⚡ Instant Enter: Pooja Sharma (Passenger)</span>
+              </button>
+            )}
+
+            {authRole === 'DRIVER' && (
+              <button
+                type="button"
+                onClick={() => {
+                  loginDriver('Ramesh Shinde (Kaka)', 'MH-15 EF 4321', 'Bajaj Compact RE (MH-15 Auto)');
+                  setRole('DRIVER');
+                }}
+                className="w-full py-2 bg-[#FCC016] hover:bg-amber-400 text-[#1E1E1E] font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>⚡ Instant Enter: Ramesh Kaka (Auto Driver)</span>
+              </button>
+            )}
+
+            {authRole === 'ADMIN' && (
+              <button
+                type="button"
+                onClick={() => {
+                  loginAdmin('9999');
+                  setRole('ADMIN');
+                }}
+                className="w-full py-2 bg-[#FCC016] hover:bg-amber-400 text-[#1E1E1E] font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>⚡ Instant Enter: Nashik Operations Desk</span>
+              </button>
+            )}
+          </div>
 
           {/* PASSENGER AUTHENTICATION FORM */}
           {authRole === 'CUSTOMER' ? (

@@ -34,7 +34,7 @@ import {
 export interface AppState {
   language: 'en' | 'mr' | 'hi';
   currentRole: 'CUSTOMER' | 'DRIVER' | 'ADMIN' | 'TESTS';
-  viewportMode: 'PHONE_SIMULATOR' | 'RESPONSIVE_CANVAS';
+  viewportMode: 'PHONE_SIMULATOR' | 'DUAL_SIMULATOR' | 'RESPONSIVE_CANVAS';
   isCustomerAuthenticated: boolean;
   isDriverAuthenticated: boolean;
   currentUser: UserProfile;
@@ -311,6 +311,13 @@ export function useFairwayStore() {
 
   const logoutDriver = () => {
     globalState.isDriverAuthenticated = false;
+    notify();
+  };
+
+  const quickDemoLoginBoth = () => {
+    globalState.isCustomerAuthenticated = true;
+    globalState.isDriverAuthenticated = true;
+    globalState.simulatedNotification = '⚡ Logged in as both Pooja Sharma (Passenger) & Ramesh Kaka (Auto Driver)! Ready for Dual/Split testing.';
     notify();
   };
 
@@ -656,6 +663,8 @@ export function useFairwayStore() {
     }
   };
 
+  let driverAutoAcceptTimeout: any = null;
+
   /**
    * Action: Accept Proposal & Send Assignment to Driver
    */
@@ -678,7 +687,7 @@ export function useFairwayStore() {
       vehicleModel: globalState.driverUser.vehicleModel,
       plateNumber: globalState.driverUser.plateNumber,
       vehicleColor: globalState.driverUser.vehicleColor,
-      state: 'DRIVER_ASSIGNED',
+      state: 'DRIVER_PENDING',
       pinCode: otp,
       meetingPoint: globalState.activeProposal.meetingPoint,
       stops: globalState.activeProposal.orderedStops,
@@ -695,15 +704,26 @@ export function useFairwayStore() {
     globalState.pendingDriverRide = globalState.activeProposal;
     globalState.showDriverRidePopup = true; // Alerts driver app with incoming ride popup!
 
-    // Notification
-    globalState.simulatedNotification = `🛺 Auto Auto-Booked! Group ID: ${groupId} (Ride OTP: ${otp}). Auto Kaka ${trip.driverName} is notified!`;
+    globalState.simulatedNotification = `🛺 Auto Booked! Group ID: ${groupId} (Ride OTP: ${otp}). Assignment dispatched to Auto Kaka ${trip.driverName}!`;
     notify();
+
+    // Auto-accept fallback after 4.5s for seamless single-view testing
+    if (driverAutoAcceptTimeout) clearTimeout(driverAutoAcceptTimeout);
+    driverAutoAcceptTimeout = setTimeout(() => {
+      if (globalState.activeTrip && globalState.activeTrip.state === 'DRIVER_PENDING') {
+        globalState.showDriverRidePopup = false;
+        globalState.activeTrip.state = 'EN_ROUTE_TO_MEETUP';
+        globalState.simulatedNotification = `🛺 Auto Kaka ${globalState.activeTrip.driverName} confirmed ride! Heading to ${globalState.activeTrip.meetingPoint.name}.`;
+        notify();
+      }
+    }, 4500);
   };
 
   /**
    * Driver Action: Driver accepts incoming ride popup
    */
   const driverAcceptRide = () => {
+    if (driverAutoAcceptTimeout) clearTimeout(driverAutoAcceptTimeout);
     globalState.showDriverRidePopup = false;
     if (!globalState.activeTrip && globalState.pendingDriverRide) {
       const p = globalState.pendingDriverRide;
@@ -719,7 +739,7 @@ export function useFairwayStore() {
         vehicleModel: globalState.driverUser.vehicleModel,
         plateNumber: globalState.driverUser.plateNumber,
         vehicleColor: globalState.driverUser.vehicleColor,
-        state: 'DRIVER_ASSIGNED',
+        state: 'EN_ROUTE_TO_MEETUP',
         pinCode: p.groupOtp,
         meetingPoint: p.meetingPoint,
         stops: p.orderedStops,
@@ -731,7 +751,7 @@ export function useFairwayStore() {
         startedAt: Date.now(),
       };
     } else if (globalState.activeTrip) {
-      globalState.activeTrip.state = 'DRIVER_ASSIGNED';
+      globalState.activeTrip.state = 'EN_ROUTE_TO_MEETUP';
     }
     if (globalState.activeTrip) {
       globalState.simulatedNotification = `🛺 Ride Accepted! Proceed to ${globalState.activeTrip.meetingPoint.name} to pick up 3 passengers.`;
@@ -743,10 +763,41 @@ export function useFairwayStore() {
    * Driver Action: Driver declines incoming ride popup
    */
   const driverDeclineRide = () => {
+    if (driverAutoAcceptTimeout) clearTimeout(driverAutoAcceptTimeout);
     globalState.showDriverRidePopup = false;
     globalState.pendingDriverRide = null;
-    globalState.simulatedNotification = `Auto driver passed on ride. Auto searching next available Nashik driver...`;
-    notify();
+
+    if (globalState.activeTrip) {
+      globalState.activeTrip.state = 'DRIVER_PENDING';
+      globalState.simulatedNotification = `Auto driver passed. Auto searching next available Nashik driver...`;
+      notify();
+
+      setTimeout(() => {
+        if (globalState.activeTrip && globalState.activeTrip.state === 'DRIVER_PENDING') {
+          const nextDriver = SEEDED_DRIVERS[1] || {
+            id: 'driver-sunil',
+            name: 'Sunil Jadhav (Kaka)',
+            phone: '+91 98223 99881',
+            plateNumber: 'MH-15 AK 9876',
+            vehicleModel: 'Bajaj RE Maxima (Share Auto)',
+            rating: 4.85,
+            vehicleColor: 'Yellow-Black',
+          };
+          globalState.activeTrip.driverId = nextDriver.id;
+          globalState.activeTrip.driverName = nextDriver.name;
+          globalState.activeTrip.driverPhone = nextDriver.phone;
+          globalState.activeTrip.driverRating = nextDriver.rating;
+          globalState.activeTrip.vehicleModel = nextDriver.vehicleModel;
+          globalState.activeTrip.plateNumber = nextDriver.plateNumber;
+          globalState.activeTrip.state = 'EN_ROUTE_TO_MEETUP';
+          globalState.simulatedNotification = `🛺 Reassigned to nearby Auto: ${nextDriver.name} (${nextDriver.plateNumber})! Heading to stand.`;
+          notify();
+        }
+      }, 1500);
+    } else {
+      globalState.simulatedNotification = `Auto driver passed on ride. Online & ready for new assignments.`;
+      notify();
+    }
   };
 
   /**
@@ -1218,6 +1269,7 @@ export function useFairwayStore() {
     logoutCustomer,
     loginDriver,
     logoutDriver,
+    quickDemoLoginBoth,
     loginAdmin,
     logoutAdmin,
     setDemandTier,
