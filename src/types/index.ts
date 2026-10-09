@@ -101,6 +101,7 @@ export type TripState =
   | 'MATCHING'
   | 'PROPOSAL_PENDING'
   | 'CONFIRMED'
+  | 'DRIVER_PENDING'
   | 'DRIVER_ASSIGNED'
   | 'EN_ROUTE_TO_MEETUP'
   | 'AT_MEETUP'

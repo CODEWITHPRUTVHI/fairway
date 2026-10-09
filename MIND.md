@@ -150,7 +150,10 @@ Key capabilities include:
 
 ---
 
-## 6. Build & Verification Commands
+## 6. Build, Deployment & Verification
+- **GitHub Repository**: [https://github.com/CODEWITHPRUTVHI/fairway](https://github.com/CODEWITHPRUTVHI/fairway)
+- **Production Live URL**: [https://fairway-auto.netlify.app](https://fairway-auto.netlify.app)
 - **Lint Check**: `npm run lint` (runs `tsc --noEmit` — 0 errors)
-- **Production Build**: `npm run build` (runs Vite build — successful)
+- **Production Build**: `npm run build` (runs Vite build — 0 errors, 0 warnings)
 - **Dev Server**: `npm run dev` (running on port 3000)
+- **Authoritative Docs**: `docs/PRD.md` v1.0 & `docs/ARCHITECTURE.md` v1.0 aligned with system implementation.

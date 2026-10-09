@@ -306,11 +306,13 @@ export const CustomerApp: React.FC = () => {
                 <div>
                   <span className="text-[10px] font-bold tracking-wider uppercase text-amber-600 flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                    {state.activeTrip.state === 'DRIVER_ASSIGNED'
+                    {state.activeTrip.state === 'DRIVER_PENDING'
+                      ? 'ASSIGNING NEAREST AUTO...'
+                      : state.activeTrip.state === 'DRIVER_ASSIGNED' || state.activeTrip.state === 'EN_ROUTE_TO_MEETUP'
                       ? 'AUTO EN-ROUTE TO AUTO STAND'
                       : state.activeTrip.state === 'AT_MEETUP'
                       ? 'AUTO ARRIVED AT AUTO STAND'
-                      : state.activeTrip.state === 'IN_PROGRESS'
+                      : state.activeTrip.state === 'PIN_VERIFIED' || state.activeTrip.state === 'IN_PROGRESS'
                       ? 'SHARED AUTO TRIP IN PROGRESS'
                       : 'TRIP COMPLETED'}
                   </span>

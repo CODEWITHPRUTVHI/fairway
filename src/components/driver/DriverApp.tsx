@@ -340,7 +340,7 @@ export const DriverApp: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-bold truncate">
                   {trip
-                    ? trip.state === 'DRIVER_ASSIGNED'
+                    ? trip.state === 'DRIVER_ASSIGNED' || trip.state === 'EN_ROUTE_TO_MEETUP' || trip.state === 'DRIVER_PENDING'
                       ? 'Proceed to Auto Stand: ' + trip.meetingPoint.name
                       : trip.state === 'AT_MEETUP'
                       ? 'Wait for Passengers at Auto Stand'
@@ -376,7 +376,7 @@ export const DriverApp: React.FC = () => {
                 </div>
 
                 {/* WORKFLOW PHASE 1: EN ROUTE TO MEETUP */}
-                {trip.state === 'DRIVER_ASSIGNED' && (
+                {(trip.state === 'DRIVER_ASSIGNED' || trip.state === 'EN_ROUTE_TO_MEETUP' || trip.state === 'DRIVER_PENDING') && (
                   <div className="space-y-2">
                     <div className="text-xs text-slate-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
                       <strong>Navigation Directive:</strong> Drive Auto to designated stand at{' '}
