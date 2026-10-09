@@ -1,0 +1,7 @@
+{
+  "name": "FAIRWAY Nashik - Auto Rickshaw Share Pooling",
+  "description": "Real-time algorithmic Auto Rickshaw pooling for Nashik District (MH-15) with hard 15% detour limits and Shapley Value fare allocation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
