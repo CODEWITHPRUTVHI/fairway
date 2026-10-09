@@ -6,6 +6,11 @@
   - **Deployed to Netlify Production**:
     - **Production URL**: [https://fairway-auto.netlify.app](https://fairway-auto.netlify.app)
     - **GitHub Repository**: [https://github.com/CODEWITHPRUTVHI/fairway](https://github.com/CODEWITHPRUTVHI/fairway)
+  - **App Install Popup & PWA Integration**:
+    - Created `InstallAppModal.tsx` that triggers an install prompt modal upon platform open.
+    - Features smart OS tab detection (Android, iOS Safari, Desktop), instant home screen installation progress, and native `beforeinstallprompt` listener.
+    - Added PWA `public/manifest.json` and mobile meta tags in `index.html`.
+    - Added an "Install App" button in the top navigation bar to re-trigger the popup anytime.
   - **Dual Device Viewport Integration**:
     - Introduced `DUAL_SIMULATOR` mode to `DeviceFrame` and `App.tsx`, providing simultaneous side-by-side presentation and live testing of the Passenger App and Auto Driver App on one screen.
   - **100% Working Passenger & Driver Flow**:

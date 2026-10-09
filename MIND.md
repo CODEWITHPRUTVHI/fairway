@@ -153,12 +153,13 @@ Key capabilities include:
 ## 6. Build, Deployment & Verification
 - **GitHub Repository**: [https://github.com/CODEWITHPRUTVHI/fairway](https://github.com/CODEWITHPRUTVHI/fairway)
 - **Production Live URL**: [https://fairway-auto.netlify.app](https://fairway-auto.netlify.app)
+- **App Install Prompt & PWA Integration**: Auto popup modal `InstallAppModal` on platform open with PWA manifest, OS detection (Android, iOS Safari, Desktop), home-screen installation progress, and persistent `Install App` header trigger.
 - **Dual Device Simulation**: Added `DUAL_SIMULATOR` mode alongside `PHONE_SIMULATOR` and `RESPONSIVE_CANVAS` for simultaneous side-by-side execution of Passenger and Driver mobile apps.
 - **Trip State Machine (PRD Section 12)**:
   - `REQUESTED` -> `MATCHING` -> `PROPOSAL_PENDING` -> `CONFIRMED` -> `DRIVER_PENDING` -> `EN_ROUTE_TO_MEETUP` -> `AT_MEETUP` -> `PIN_VERIFIED` -> `IN_PROGRESS` -> `COMPLETED`.
   - Reassignment workflow (FR-14) implemented on driver decline.
   - 1-tap instant demo access for Passenger (Pooja Sharma), Driver (Ramesh Kaka), and Dual-Mode login.
 - **Lint Check**: `npm run lint` (runs `tsc --noEmit` — 0 errors)
-- **Production Build**: `npm run build` (built in 366ms — 0 errors, 0 warnings)
+- **Production Build**: `npm run build` (built in 289ms — 0 errors, 0 warnings)
 - **Dev Server**: `npm run dev` (running on port 3000)
 - **Authoritative Docs**: `docs/PRD.md` v1.0 & `docs/ARCHITECTURE.md` v1.0 aligned with system implementation.

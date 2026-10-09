@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Smartphone,
   Maximize2,
@@ -10,9 +10,11 @@ import {
   Wifi,
   Battery,
   Languages,
+  Download,
 } from 'lucide-react';
 import { useFairwayStore } from '../../services/store';
 import { TRANSLATIONS } from '../../services/i18n';
+import { InstallAppModal } from './InstallAppModal';
 
 interface DeviceFrameProps {
   children: React.ReactNode;
@@ -58,6 +60,7 @@ export const PhoneDeviceShell: React.FC<{ children: React.ReactNode }> = ({ chil
 
 export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
   const { state, setRole, setViewportMode, resetDemoState, setLanguage } = useFairwayStore();
+  const [showInstallModal, setShowInstallModal] = useState(false);
   const t = TRANSLATIONS[state.language || 'en'];
 
   return (
@@ -215,6 +218,15 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
           </div>
 
           <button
+            onClick={() => setShowInstallModal(true)}
+            title="Install FAIRWAY App on Mobile / Desktop"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-black text-[#1E1E1E] bg-[#FCC016] hover:bg-amber-400 rounded-lg shadow-sm cursor-pointer transition-transform active:scale-95 border border-amber-400"
+          >
+            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
+
+          <button
             onClick={resetDemoState}
             title="Reset Simulation State"
             className="p-1.5 text-slate-400 hover:text-amber-400 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 cursor-pointer transition-colors"
@@ -245,6 +257,12 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
           <span>{state.simulatedNotification}</span>
         </div>
       )}
+
+      {/* App Install Popup Modal */}
+      <InstallAppModal
+        forceOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+      />
     </div>
   );
 };

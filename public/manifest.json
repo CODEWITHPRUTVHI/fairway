@@ -1,0 +1,17 @@
+{
+  "short_name": "FAIRWAY",
+  "name": "FAIRWAY Nashik - Auto Rickshaw Share Pooling",
+  "description": "Smart shared auto rickshaw pooling in Nashik with strict 15% detour limits and Shapley Value cost splits.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1E1E1E",
+  "theme_color": "#FCC016",
+  "display": "standalone",
+  "orientation": "portrait"
+}
