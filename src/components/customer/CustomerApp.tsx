@@ -44,6 +44,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { AuthModal } from '../auth/AuthModal';
 import { StrangerMatchingModal } from './StrangerMatchingModal';
 import { TRANSLATIONS } from '../../services/i18n';
+import { calculateUrbanRoadDistanceKm } from '../../algorithms/routing';
 
 export const CustomerApp: React.FC = () => {
   const {
@@ -99,6 +100,20 @@ export const CustomerApp: React.FC = () => {
   const currentAllocation =
     state.activeTrip?.allocations[state.currentUser.id] ||
     state.activeProposal?.allocations[state.currentUser.id];
+
+  // ── REAL-TIME DYNAMIC FARE CALCULATION ──
+  const tripRoadDistKm = Math.max(
+    1.2,
+    Number(calculateUrbanRoadDistanceKm(state.pickupLocation, state.destinationLocation).toFixed(1))
+  );
+  const ratePerKm = state.selectedVehicle.perKmRate || 14;
+  const calculatedSoloFare = Math.round(
+    Math.max(30, (25 + Math.max(0, tripRoadDistKm - 1.5) * ratePerKm) * state.demandMultiplier)
+  );
+  const calculatedPooledFare = Math.round(Math.max(16, calculatedSoloFare * 0.40));
+  const calculatedSavings = calculatedSoloFare - calculatedPooledFare;
+  const calculatedSavingsPct = Math.round((calculatedSavings / calculatedSoloFare) * 100);
+  const stopBIntermediateFare = Math.round(calculatedPooledFare * 0.72);
 
   return (
     <div className="flex-1 flex flex-col bg-[#F8F9FA] relative">
@@ -172,7 +187,8 @@ export const CustomerApp: React.FC = () => {
       {/* Main View Area */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
         {/* Real Leaflet Map Section */}
-        <div className="h-[45%] w-full relative">
+        {/* Real Leaflet Map Section (Constrained height with strict isolation) */}
+        <div className="h-[38%] min-h-[190px] w-full relative z-0 isolate overflow-hidden shrink-0">
           <LiveMap
             pickupLocation={state.pickupLocation}
             destinationLocation={state.destinationLocation}
@@ -190,15 +206,17 @@ export const CustomerApp: React.FC = () => {
 
           {/* Live GPS movement badge */}
           {state.activeTrip && state.activeTrip.state === 'DRIVER_ASSIGNED' && (
-            <div className="absolute bottom-3 left-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-[999]">
+            <div className="absolute bottom-3 left-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-10">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>Live GPS: Auto approaching {state.activeTrip.meetingPoint.name}</span>
             </div>
           )}
         </div>
 
-        {/* Dynamic Bottom Sheet Container */}
-        <div className="flex-1 bg-white rounded-t-3xl shadow-2xl border-t border-slate-100 overflow-y-auto px-4 py-3 flex flex-col">
+        {/* Dynamic Bottom Sheet Container (Full smooth touch scroll with bottom padding) */}
+        <div className="flex-1 min-h-0 bg-white rounded-t-3xl shadow-2xl border-t border-slate-100 overflow-y-auto overscroll-contain px-4 py-3 pb-28 flex flex-col z-10 relative">
+          {/* Subtle Touch Drag Indicator */}
+          <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-2 shrink-0 cursor-grab" />
           {/* SEARCHING RADAR STATE: LIVE 5-MINUTE BATCHING COUNTDOWN */}
           {state.isSearchingPartners ? (
             <div className="py-6 text-center space-y-3.5 animate-in fade-in">
@@ -740,10 +758,11 @@ export const CustomerApp: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-[#FCC016]" />
-                    {t.costSplitTitle || 'Dynamic Fair Cost Splitting'}
+                    <span>{t.costSplitTitle || 'Dynamic Fair Cost Splitting'}</span>
+                    <span className="text-slate-400 font-normal">({tripRoadDistKm} km)</span>
                   </span>
                   <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">
-                    Save ₹36 (60% Off)
+                    Save ₹{calculatedSavings} ({calculatedSavingsPct}% Off)
                   </span>
                 </div>
 
@@ -751,37 +770,38 @@ export const CustomerApp: React.FC = () => {
                 <div className="flex items-baseline justify-between pt-0.5">
                   <div>
                     <span className="text-[10px] text-slate-400 block">Total Solo Direct Fare</span>
-                    <span className="text-base font-bold text-slate-300 line-through">₹60.00</span>
+                    <span className="text-base font-bold text-slate-300 line-through">₹{calculatedSoloFare.toFixed(2)}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-emerald-300 block">Your Pooled Share-Auto Fare</span>
-                    <span className="text-2xl font-black text-[#FCC016]">₹24.00</span>
+                    <span className="text-2xl font-black text-[#FCC016]">₹{calculatedPooledFare.toFixed(2)}</span>
                   </div>
                 </div>
 
                 {/* Visual Step-by-Step Dropoff Route & Money Split Diagram */}
                 <div className="bg-slate-800/90 rounded-xl p-2.5 text-[10px] space-y-2 border border-slate-700">
-                  <div className="font-bold text-slate-200 flex items-center gap-1">
-                    <span>Route Cost Split (If rider drops at Stop B):</span>
+                  <div className="font-bold text-slate-200 flex items-center justify-between">
+                    <span>Route Cost Split (If co-rider drops at Stop B):</span>
+                    <span className="text-[9px] text-[#FCC016] font-mono">{tripRoadDistKm} km total</span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-1.5 text-center text-[9px]">
                     <div className="bg-slate-700/60 p-1.5 rounded-lg border border-slate-600">
-                      <div className="text-slate-400">Stop A (Pickup)</div>
-                      <div className="font-bold text-white">CBS Stand</div>
+                      <div className="text-slate-400 truncate">Stop A (Pickup)</div>
+                      <div className="font-bold text-white truncate">{state.pickupLocation.name.split('(')[0].trim()}</div>
                       <div className="text-[#FCC016] font-semibold mt-0.5">3 Board</div>
                     </div>
 
                     <div className="bg-emerald-950/60 p-1.5 rounded-lg border border-emerald-600/40">
-                      <div className="text-emerald-400 font-bold">Stop B (Midway)</div>
-                      <div className="font-bold text-white">Dongre Vasti</div>
-                      <div className="text-emerald-300 font-black mt-0.5">Rider 2: ₹18</div>
+                      <div className="text-emerald-400 font-bold truncate">Stop B (Midway)</div>
+                      <div className="font-bold text-white truncate">Dongre / Chowk</div>
+                      <div className="text-emerald-300 font-black mt-0.5">Rider 2: ₹{stopBIntermediateFare}</div>
                     </div>
 
                     <div className="bg-amber-950/60 p-1.5 rounded-lg border border-amber-500/40">
-                      <div className="text-amber-400 font-bold">Stop C (Your Stop)</div>
-                      <div className="font-bold text-white">College Road</div>
-                      <div className="text-[#FCC016] font-black mt-0.5">You: ₹24</div>
+                      <div className="text-amber-400 font-bold truncate">Stop C (Your Stop)</div>
+                      <div className="font-bold text-white truncate">{state.destinationLocation.name.split('(')[0].trim()}</div>
+                      <div className="text-[#FCC016] font-black mt-0.5">You: ₹{calculatedPooledFare}</div>
                     </div>
                   </div>
 
@@ -924,8 +944,8 @@ export const CustomerApp: React.FC = () => {
 
       {/* SIDE DRAWER MENU */}
       {showDrawer && (
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex">
-          <div className="w-[78%] max-w-xs bg-white h-full p-4 flex flex-col justify-between animate-in slide-in-from-left">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-[9999] flex">
+          <div className="w-[82%] max-w-xs bg-white h-full p-4 flex flex-col justify-between shadow-2xl relative z-10 animate-in slide-in-from-left duration-200">
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">

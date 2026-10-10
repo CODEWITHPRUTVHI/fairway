@@ -54,7 +54,7 @@ export const CleanAppContainer: React.FC<{
 };
 
 export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
-  const { state, setRole, setViewportMode, resetDemoState, setLanguage } = useFairwayStore();
+  const { state, setRole, setViewportMode, resetDemoState, setLanguage, clearNotification } = useFairwayStore();
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showMobileRoleMenu, setShowMobileRoleMenu] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -385,11 +385,27 @@ export const DeviceFrame: React.FC<DeviceFrameProps> = ({ children }) => {
         </main>
       </div>
 
-      {/* Simulated notification banner */}
+      {/* Modern Non-Obstructive Notification Toast Banner */}
       {state.simulatedNotification && (
-        <div className="fixed bottom-4 right-4 max-w-md bg-amber-500 text-slate-950 px-4 py-3 rounded-xl shadow-2xl font-medium text-xs z-50 flex items-center gap-2 border border-amber-600 animate-bounce">
-          <span className="font-bold">⚠️ EMERGENCY ALERT:</span>
-          <span>{state.simulatedNotification}</span>
+        <div className="fixed top-14 sm:top-4 right-3 sm:right-4 max-w-sm z-[9999] bg-slate-900/95 backdrop-blur-md text-white p-3 rounded-2xl shadow-2xl border border-amber-400/40 flex items-start gap-2.5 animate-in slide-in-from-top-3 duration-200">
+          <div className="w-7 h-7 rounded-xl bg-[#FCC016] text-[#1E1E1E] flex items-center justify-center shrink-0 font-bold text-sm shadow">
+            {state.simulatedNotification.includes('EMERGENCY') ? '🚨' : '🛺'}
+          </div>
+          <div className="flex-1 min-w-0 pr-1">
+            <span className="text-[10px] uppercase tracking-wider font-extrabold text-[#FCC016] block">
+              {state.simulatedNotification.includes('EMERGENCY') ? 'Police & SOS Alert' : 'Live Update'}
+            </span>
+            <p className="text-xs text-slate-200 leading-snug mt-0.5">
+              {state.simulatedNotification.replace(/🚨 EMERGENCY ALERT:? ?/, '')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => clearNotification()}
+            className="w-6 h-6 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center shrink-0 cursor-pointer text-xs font-bold transition-colors"
+          >
+            ✕
+          </button>
         </div>
       )}
 

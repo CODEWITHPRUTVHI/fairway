@@ -26,7 +26,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useFairwayStore } from '../../services/store';
-import { MapCanvas } from '../common/MapCanvas';
+import { LiveMap } from '../common/LiveMap';
 import { AuthModal } from '../auth/AuthModal';
 import { TRANSLATIONS } from '../../services/i18n';
 
@@ -322,18 +322,20 @@ export const DriverApp: React.FC = () => {
       {activeTab === 'DISPATCH' && (
         /* Dispatch & Turn-by-Turn View */
         <div className="flex-1 flex flex-col relative overflow-hidden">
-          {/* Map navigation viewport */}
-          <div className="h-[44%] w-full relative">
-            <MapCanvas
+          {/* Real Leaflet Map navigation viewport (Strict isolation) */}
+          <div className="h-[40%] min-h-[200px] w-full relative z-0 isolate overflow-hidden shrink-0">
+            <LiveMap
               pickupLocation={state.pickupLocation}
               destinationLocation={state.destinationLocation}
               meetingPoint={trip?.meetingPoint}
               driverLocation={trip ? trip.driverLocation : state.driverLocation}
+              stops={trip?.stops}
               showVehicle={true}
+              showUserLocation={true}
             />
 
             {/* Turn Banner */}
-            <div className="absolute top-3 inset-x-3 bg-slate-900/95 text-white p-2.5 rounded-xl shadow-lg flex items-center gap-3 z-20">
+            <div className="absolute top-3 inset-x-3 bg-slate-900/95 text-white p-2.5 rounded-xl shadow-lg flex items-center gap-3 z-10">
               <div className="w-8 h-8 rounded-lg bg-[#FCC016] text-[#1E1E1E] flex items-center justify-center font-black">
                 <Navigation className="w-5 h-5" />
               </div>
@@ -355,7 +357,8 @@ export const DriverApp: React.FC = () => {
           </div>
 
           {/* Driver Actions & Stops Drawer */}
-          <div className="flex-1 bg-white rounded-t-3xl shadow-2xl border-t border-slate-100 p-4 overflow-y-auto flex flex-col justify-between">
+          <div className="flex-1 min-h-0 bg-white rounded-t-3xl shadow-2xl border-t border-slate-100 p-4 pb-20 overflow-y-auto overscroll-contain flex flex-col justify-between z-10 relative">
+            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-2 shrink-0 cursor-grab" />
             {trip ? (
               <div className="space-y-3">
                 {/* Driver Financial Summary in INR (₹) */}

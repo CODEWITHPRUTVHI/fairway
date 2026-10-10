@@ -404,7 +404,33 @@ export function useFairwayStore() {
    * Create Matched Group Proposal (Max 3 auto capacity, 1 km anchor radius)
    */
   const createMatchedGroupProposal = () => {
-    if (!globalState.activeRequest) return;
+    if (!globalState.activeRequest) {
+      const dist = calculateUrbanRoadDistanceKm(
+        globalState.pickupLocation,
+        globalState.destinationLocation
+      );
+      const duration = calculateUrbanTravelTimeMin(dist);
+      const mult = globalState.demandMultiplier;
+      const soloCost = Math.round(globalState.selectedVehicle.soloPrice * mult);
+
+      globalState.activeRequest = {
+        id: `REQ-${Date.now().toString().slice(-6)}`,
+        passengerId: globalState.currentUser.id,
+        passengerName: globalState.currentUser.name,
+        passengerGender: globalState.currentUser.gender,
+        origin: globalState.pickupLocation,
+        destination: globalState.destinationLocation,
+        vehicleOptionId: globalState.selectedVehicle.id,
+        soloBaselineDistanceKm: dist,
+        soloBaselineDurationMin: duration,
+        soloBaselineCost: soloCost,
+        passengerCount: globalState.passengerCount,
+        womenOnlyPreference: globalState.womenOnlyPreference,
+        maxWaitTimeMin: 5,
+        createdAt: Date.now(),
+        status: 'PENDING',
+      };
+    }
     const req = globalState.activeRequest;
 
     // Pick dummy co-passengers that strictly adhere to gender rules
@@ -1322,6 +1348,11 @@ export function useFairwayStore() {
     notify();
   };
 
+  const clearNotification = () => {
+    globalState.simulatedNotification = null;
+    notify();
+  };
+
   return {
     state,
     setLanguage,
@@ -1367,5 +1398,6 @@ export function useFairwayStore() {
     simulateDriverIncomingRide,
     resetDriverRide,
     resetDemoState,
+    clearNotification,
   };
 }

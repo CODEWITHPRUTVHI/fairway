@@ -21,6 +21,7 @@ import { LiveMap } from '../common/LiveMap';
 import { NASHIK_LOCATIONS } from '../../data/mockData';
 import { TRANSLATIONS } from '../../services/i18n';
 import { realtimeSync } from '../../services/realtimeSync';
+import { calculateUrbanRoadDistanceKm } from '../../algorithms/routing';
 
 interface StrangerMatchingModalProps {
   isOpen: boolean;
@@ -62,6 +63,16 @@ export const StrangerMatchingModal: React.FC<StrangerMatchingModalProps> = ({
 
   const currentDiameterKm =
     currentPhase === 1 ? '1.0 km' : currentPhase === 2 ? '1.2 km (+200m)' : '1.4 km (+400m)';
+
+  // Real-time dynamic fare calculation for the passenger based on destination
+  const userDistanceKm = Math.max(
+    1.2,
+    Number(calculateUrbanRoadDistanceKm(pickupLocation, destinationLocation).toFixed(1))
+  );
+  const userSoloFare = Math.round(Math.max(30, 25 + Math.max(0, userDistanceKm - 1.5) * 14));
+  const userPooledFare = Math.round(Math.max(16, userSoloFare * 0.40));
+  const userSavings = userSoloFare - userPooledFare;
+  const userSavingsPct = Math.round((userSavings / userSoloFare) * 100);
 
   // Calculate optimal Mid Meeting Point (Centroid of riders snapped to recognized auto stand)
   const midMeetingPoint: LocationPoint = {
@@ -144,7 +155,7 @@ export const StrangerMatchingModal: React.FC<StrangerMatchingModalProps> = ({
 
   const handleBookWithStrangers = () => {
     const splitFares = {
-      user: { soloFare: 60, pooledFare: 24, savings: 36 },
+      user: { soloFare: userSoloFare, pooledFare: userPooledFare, savings: userSavings },
       stranger1: { soloFare: 40, pooledFare: 18, savings: 22 },
       stranger2: { soloFare: 65, pooledFare: 26, savings: 39 },
     };
@@ -161,14 +172,14 @@ export const StrangerMatchingModal: React.FC<StrangerMatchingModalProps> = ({
       senderId: 'user-active',
       senderName: 'Pooja Sharma',
       payload: {
-        message: 'Friendly reminder: Please keep ₹24 cash or UPI ready for Auto Kaka upon reaching your stop!',
+        message: `Friendly reminder: Please keep ₹${userPooledFare} cash or UPI ready for Auto Kaka upon reaching your stop!`,
       },
     });
     setTimeout(() => setPaymentReminderSent(false), 4000);
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 animate-in fade-in">
+    <div className="fixed inset-0 z-[10000] bg-black/75 backdrop-blur-md flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 animate-in fade-in">
       <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[94vh] max-h-[860px] text-slate-100">
         
         {/* Modal Header */}
@@ -364,8 +375,8 @@ export const StrangerMatchingModal: React.FC<StrangerMatchingModalProps> = ({
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-black text-[#FCC016]">₹24.00</div>
-                    <div className="text-[9px] text-emerald-400 font-bold">-₹36 Saved (60% Off)</div>
+                    <div className="text-sm font-black text-[#FCC016]">₹{userPooledFare}.00</div>
+                    <div className="text-[9px] text-emerald-400 font-bold">-₹{userSavings} Saved ({userSavingsPct}% Off)</div>
                   </div>
                 </div>
 
@@ -436,7 +447,7 @@ export const StrangerMatchingModal: React.FC<StrangerMatchingModalProps> = ({
                 onClick={handleBookWithStrangers}
                 className="w-full py-3.5 bg-[#FCC016] hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Confirm & Book Shared Auto (₹24)</span>
+                <span>Confirm & Book Shared Auto (₹{userPooledFare})</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
               </button>
             </div>

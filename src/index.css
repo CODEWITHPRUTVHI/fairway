@@ -20,10 +20,27 @@
   }
 }
 
-/* ── LEAFLET CUSTOM STYLES ───────────────────────────────────────── */
+/* ── LEAFLET CUSTOM STYLES & Z-INDEX ISOLATION ───────────────────── */
 .leaflet-container {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
   border-radius: inherit;
+  isolation: isolate !important;
+  z-index: 1 !important;
+}
+
+.leaflet-pane,
+.leaflet-tile-pane,
+.leaflet-shadow-pane,
+.leaflet-overlay-pane,
+.leaflet-marker-pane,
+.leaflet-tooltip-pane,
+.leaflet-popup-pane {
+  z-index: 2 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 3 !important;
 }
 
 .fairway-tooltip {

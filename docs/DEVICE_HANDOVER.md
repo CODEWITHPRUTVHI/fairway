@@ -46,6 +46,19 @@
     7. **Tri-Lingual Localization**: Complete translations in English, Marathi (मराठी), and Hindi (हिंदी).
     8. **Women Sakhi Auto Mode**: Guaranteed strict female-only pool filtering with safety indicators.
     9. **Netlify Build Fix**: Added `.npmrc` (`legacy-peer-deps=true`), updated `netlify.toml` (`NPM_FLAGS = "--legacy-peer-deps"`), and eliminated peer conflicts in `package-lock.json` so Netlify's `npm ci` installs with zero errors.
+    10. **Three-Phase Comprehensive Bug Fixes (Mobile & Production UI)**:
+        - **Phase 1: Z-Index Isolation, Sticky Alert, & Scroll Fixes**:
+          - Isolated Leaflet map styles (`index.css`) with strict z-index stacking (`.leaflet-container { isolation: isolate; z-index: 1 !important; }`), ensuring map tiles never bleed through headers, dropdowns, or modals.
+          - Replaced sticky bottom-right bouncing emergency alert in `DeviceFrame.tsx` with a non-obstructive top toast with explicit dismiss `(X)` button and auto-clear timer (`clearNotification`).
+          - Fixed mobile booking sheet cutoff in `CustomerApp.tsx` by constraining map viewport and making "Where to in Nashik" sheet cleanly scrollable with `overscroll-contain` and bottom padding.
+          - Set side navigation drawer to `z-[9999]` with backdrop blur, eliminating overlaps.
+        - **Phase 2: Dynamic Fares & Driver LiveMap Upgrade**:
+          - Upgraded Driver app (`DriverApp.tsx`) from the static SVG `MapCanvas` to the real Leaflet `LiveMap` with driver marker, route polyline, and auto stand locations.
+          - Replaced hardcoded ₹60 solo / ₹24 pooled fares in `CustomerApp.tsx` and `StrangerMatchingModal.tsx` with dynamic RTO calculation (`calculateUrbanRoadDistanceKm`, ₹25 base + ₹14/km * demand multiplier), updating in real time as destinations change.
+        - **Phase 3: Stranger Matching Radar & Main Map Integration**:
+          - Raised `StrangerMatchingModal.tsx` to `z-[10000]` so the 5-minute radar scanner cleanly overlays above all headers and map panes.
+          - Fixed stranger grouping flow in `store.ts` (`createMatchedGroupProposal` & `confirmStrangerMatch`) to auto-create valid `activeRequest` if missing and transition directly into the active trip on the main map.
+          - After confirming strangers, the radar modal closes and the main map instantly displays matched co-riders, calculated mid meeting point, route, and live moving Auto Rickshaw.
   - `npm run lint` (`tsc --noEmit`) and `npm run build` compiled with 0 errors.
 
 ## 2. Reproduction Commands

@@ -165,6 +165,10 @@ Key capabilities include:
   - Reassignment workflow (FR-14) implemented on driver decline.
   - 1-tap instant demo access for Passenger (Pooja Sharma), Driver (Ramesh Kaka), and Dual-Mode login.
 - **Lint Check**: `npm run lint` (runs `tsc --noEmit` — 0 errors)
-- **Production Build**: `npm run build` (built in 289ms — 0 errors, 0 warnings)
+- **Production Build**: `npm run build` (built in 610ms — 0 errors)
 - **Dev Server**: `npm run dev` (running on port 3000)
 - **Authoritative Docs**: `docs/PRD.md` v1.0 & `docs/ARCHITECTURE.md` v1.0 aligned with system implementation.
+- **Three-Phase Mobile & Production Fixes**:
+  - **Phase 1**: Leaflet CSS z-index container isolation, dismissible top toast notification, mobile booking sheet scrollability, and side navigation drawer z-index `z-[9999]`.
+  - **Phase 2**: Real-time RTO meter fare calculations based on pickup/drop locations; Driver app upgraded from SVG to Leaflet `LiveMap`.
+  - **Phase 3**: Stranger matching modal elevated to `z-[10000]`, fallback ride request generation, dynamic co-rider fare breakdown, and smooth transition to main map with live moving auto.
