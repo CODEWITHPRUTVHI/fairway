@@ -6,14 +6,17 @@
 It dynamically selects designated Nashik Auto Stands as meeting points, optimizes multi-stop routes with a **strict maximum 15% detour limit per passenger**, and computes mathematically fair passenger fares (in ₹ INR) and driver earnings using **Cooperative Game Theory (Shapley Value cost allocation)**.
 
 Key capabilities include:
-- **Top Bar Multi-Language Switcher** (English, Marathi / मराठी, Hindi / हिंदी).
-- **Strict Gender Privacy Protection**: Male passengers are completely barred from viewing or selecting the Women-Only Auto Pool (महिला सखी ऑटो).
-- **Ola & Uber-Style Vehicle & Fare Visualization**: Upfront Solo Auto vs Shared Auto pricing and dynamic midway fare-splitting visualizer (A to C via B).
-- **Temporary Group ID & Ride OTP**: Up to 3 passengers matched into a group with an OTP generated for boarding.
-- **Designated Auto Stand Pickup & "I am Ready" Flow**: Auto-booking upon commuter readiness.
-- **Actionable Driver Command Center**: Standalone dispatch, incoming ride pop-up, stand arrival, OTP verification, 1-by-1 passenger dropoffs, and settled earnings ledger.
-- **Safety & Emergency Desk**: 1-tap Nashik Police SOS (112), trusted emergency contacts, and live trip tracking.
-- **Operations & Admin Console**: Real-time batching inspector, 15% detour auditor, Shapley cooperative game sandbox, and benchmark simulator.
+- **Cinematic Launch & Splash Experience**: Animated Auto Rickshaw with headlamp glow projection, sound/speed trails, and smooth entry into the app.
+- **Real Leaflet OpenStreetMap Engine**: Real tile rendering centered on Nashik coordinates with user GPS location, auto rickshaw movement, and corridor routing.
+- **Scrollable Native Booking Sheet**: Cleanly scrollable "Where to in Nashik" bottom sheet with zero cutoff on mobile viewports.
+- **3-Phase Stranger Matching Radar Scanner**: 5-minute sliding window (Phase 1: 1.0 km anchor, Phase 2: +200m expansion, Phase 3: max 1.4 km corridor) with radar sweep animation and candidate commuter blips.
+- **Midpoint Meeting Algorithm**: Automatically computes optimal gathering centroid snapped to recognized Nashik auto stands with walking times and distance.
+- **Swiggy/Ola Style Live Vehicle Movement**: Smooth real-time breadcrumb animation of approaching Auto Rickshaw.
+- **Cross-Device Real-Time Sync**: Realtime mesh service supporting multi-device operation (1 Driver + 3 Passengers across multiple phones or tabs).
+- **Persistent Header & Clean Navigation**: Aligned top bar with zero name overflow and full functional drawer menu.
+- **Top Bar Multi-Language Switcher**: English, Marathi (मराठी), and Hindi (हिंदी).
+- **Strict Gender Privacy Protection**: Male commuters cannot view or select Women Sakhi mode; female commuters get verified female-only pooling.
+- **Shapley Value Fair Fare Split & Payment Reminders**: Transparent cooperative game cost allocations and split payment reminders.
 
 ---
 

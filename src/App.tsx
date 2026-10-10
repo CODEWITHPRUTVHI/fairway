@@ -3,17 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DeviceFrame, CleanAppContainer } from './components/common/DeviceFrame';
 import { CustomerApp } from './components/customer/CustomerApp';
 import { DriverApp } from './components/driver/DriverApp';
 import { OperationsConsole } from './components/admin/OperationsConsole';
 import { VerificationRunner } from './components/test/VerificationRunner';
 import { AuthScreen } from './components/auth/AuthScreen';
+import { SplashScreen } from './components/common/SplashScreen';
 import { useFairwayStore } from './services/store';
 
 export default function App() {
   const { state } = useFairwayStore();
+  const [showSplash, setShowSplash] = useState(true);
+
+  return (
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      <MainAppContent state={state} />
+    </>
+  );
+}
+
+function MainAppContent({ state }: { state: any }) {
 
   if (state.viewportMode === 'DUAL_SIMULATOR') {
     return (

@@ -60,6 +60,16 @@ export interface Translations {
   totalPooledFare: string;
   dropSequence: string;
   switchLanguage: string;
+  findStrangers: string;
+  phase1: string;
+  phase2: string;
+  phase3: string;
+  scanning1km: string;
+  expandingScan: string;
+  maxRadiusScan: string;
+  midpointMeeting: string;
+  paymentReminder: string;
+  instantMatch: string;
 }
 
 export const TRANSLATIONS: Record<Language, Translations> = {
@@ -123,6 +133,16 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     totalPooledFare: 'Total Pooled Fare',
     dropSequence: 'Sequential Dropoff Stops (1 by 1)',
     switchLanguage: 'Language',
+    findStrangers: 'Find Strangers for Ride',
+    phase1: 'Phase 1: 1.0 km Anchor Scan',
+    phase2: 'Phase 2: Expanded Scan (+200m)',
+    phase3: 'Phase 3: Max 1.4 km Corridor Scan',
+    scanning1km: 'Scanning 1.0 km diameter for co-passengers...',
+    expandingScan: 'Expanding scan diameter by +200m...',
+    maxRadiusScan: 'Final 1-minute scan at maximum radius...',
+    midpointMeeting: 'Mid Meeting Point',
+    paymentReminder: 'Send Fare Payment Reminder',
+    instantMatch: 'Instant Stranger Match',
   },
   mr: {
     appName: 'फेअरवे नाशिक',
@@ -184,6 +204,16 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     totalPooledFare: 'एकूण एकत्रित भाडे',
     dropSequence: 'एकामागून एक प्रवाशांचे स्टॉप',
     switchLanguage: 'भाषा',
+    findStrangers: 'नवीन सहप्रवासी शोधा (स्ट्रेंजर पूल)',
+    phase1: 'टप्पा १: १.० किमी व्यास स्कॅन',
+    phase2: 'टप्पा २: वाढीव स्कॅन (+२०० मी)',
+    phase3: 'टप्पा ३: कमाल १.४ किमी कॉरिडॉर स्कॅन',
+    scanning1km: '१.० किमी परिघात सहप्रवासी शोधत आहे...',
+    expandingScan: 'स्कॅन व्यास २०० मीटरने वाढवत आहे...',
+    maxRadiusScan: 'शेवटच्या १ मिनिटात कमाल परिघात शोध...',
+    midpointMeeting: 'मध्यवर्ती भेट ठिकाण',
+    paymentReminder: 'भाडे देण्याची आठवण पाठवा',
+    instantMatch: 'त्वरित सहप्रवासी मिळवा',
   },
   hi: {
     appName: 'फेयरवे नासिक',
@@ -245,5 +275,15 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     totalPooledFare: 'कुल एकत्रित किराया',
     dropSequence: 'एक-एक करके यात्रियों के स्टॉप',
     switchLanguage: 'भाषा',
+    findStrangers: 'सह-यात्री खोजें (अजनबी साथी पूल)',
+    phase1: 'चरण 1: 1.0 किमी व्यास स्कैन',
+    phase2: 'चरण 2: विस्तारित स्कैन (+200 मी)',
+    phase3: 'चरण 3: अधिकतम 1.4 किमी कॉरिडोर स्कैन',
+    scanning1km: '1.0 किमी व्यास में सह-यात्रियों की खोज...',
+    expandingScan: 'स्कैन व्यास 200 मीटर बढ़ाया जा रहा है...',
+    maxRadiusScan: 'अंतिम 1 मिनट में अधिकतम त्रिज्या पर खोज...',
+    midpointMeeting: 'मध्य मिलन स्थल',
+    paymentReminder: 'किराया भुगतान अनुस्मारक भेजें',
+    instantMatch: 'तुरंत साथी खोजें',
   },
 };

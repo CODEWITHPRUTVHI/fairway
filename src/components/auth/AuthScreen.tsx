@@ -123,33 +123,69 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
   return (
     <div className="flex-1 flex flex-col bg-slate-900 text-slate-100 overflow-y-auto">
-      {/* Brand Hero Header */}
-      <div className="bg-gradient-to-b from-[#1E1E1E] to-slate-900 px-6 pt-7 pb-5 border-b border-slate-800 text-center relative">
-        <div className="w-16 h-16 rounded-2xl bg-[#FCC016] text-[#1E1E1E] flex items-center justify-center font-black text-3xl mx-auto shadow-xl shadow-amber-400/10 mb-3 border border-amber-300">
-          🛺
+      {/* ── CINEMATIC HERO SECTION ─────────────────────── */}
+      <div className="relative bg-gradient-to-b from-[#0A0A0A] via-[#1a1200] to-slate-900 px-5 pt-8 pb-5 text-center overflow-hidden">
+        {/* Background glow rings */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-64 h-64 rounded-full border border-amber-400/10 animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute w-48 h-48 rounded-full border border-amber-400/15 animate-ping" style={{ animationDuration: '2.2s', animationDelay: '0.4s' }} />
+          <div className="absolute w-32 h-32 rounded-full border border-amber-400/20 animate-ping" style={{ animationDuration: '1.6s', animationDelay: '0.8s' }} />
         </div>
-        <h1 className="text-xl font-black text-white tracking-tight">
-          FAIRWAY NASHIK
-        </h1>
-        <p className="text-xs text-[#FCC016] font-semibold mt-0.5">
-          नाशिक रिक्षा सामायिकरण (Auto Rickshaw Pooling)
-        </p>
-        <p className="text-[11px] text-slate-400 max-w-xs mx-auto mt-1">
-          Smart shared auto rides across Nashik District with strict 15% detour limits & fair Shapley cost splitting.
+
+        {/* Floating road dots */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
+
+        {/* Brand Icon — animated entry */}
+        <div className="relative inline-block mb-3 animate-glow-pulse">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FCC016] to-amber-500 text-[#1E1E1E] flex items-center justify-center font-black text-4xl mx-auto shadow-2xl shadow-amber-400/30 border-2 border-amber-300/50 animate-float">
+            🛺
+          </div>
+          {/* Online indicator */}
+          <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-slate-900 rounded-full flex items-center justify-center">
+            <span className="w-2 h-2 rounded-full bg-white animate-ping" style={{ animationDuration: '1.5s' }} />
+          </span>
+        </div>
+
+        {/* Brand name */}
+        <div className="animate-fade-in-up delay-100">
+          <h1 className="text-2xl font-black text-white tracking-tight leading-none">
+            FAIRWAY
+          </h1>
+          <p className="text-[11px] font-black text-[#FCC016] tracking-[0.3em] uppercase mt-0.5">
+            Nashik · MH-15
+          </p>
+        </div>
+
+        {/* Tagline */}
+        <p className="text-xs text-slate-300 mt-2 animate-fade-in-up delay-200 leading-relaxed">
+          नाशिक रिक्षा सामायिकरण — Smart shared auto rides with 15% detour limit & Shapley fare splitting.
         </p>
 
-        {/* Primary Role Selector Tabs */}
-        <div className="grid grid-cols-3 p-1 bg-slate-800/90 rounded-2xl gap-1 mt-4 max-w-sm mx-auto border border-slate-700/80">
+        {/* Stat pills row */}
+        <div className="flex items-center justify-center gap-2 mt-3 animate-fade-in-up delay-300">
+          <span className="text-[10px] bg-amber-400/15 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-400/30">
+            ≤15% Detour
+          </span>
+          <span className="text-[10px] bg-emerald-400/15 text-emerald-300 px-2 py-0.5 rounded-full font-bold border border-emerald-400/30">
+            Save 35–54%
+          </span>
+          <span className="text-[10px] bg-purple-400/15 text-purple-300 px-2 py-0.5 rounded-full font-bold border border-purple-400/30">
+            Women Sakhi
+          </span>
+        </div>
+
+        {/* Role Selector Tabs */}
+        <div className="grid grid-cols-3 p-1 bg-slate-800/80 backdrop-blur-sm rounded-2xl gap-1 mt-4 max-w-sm mx-auto border border-slate-700/60 animate-fade-in-up delay-400">
           <button
             type="button"
             onClick={() => {
               setAuthRole('CUSTOMER');
               setFeedbackMsg(null);
             }}
-            className={`py-2 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
+            className={`py-2.5 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
               authRole === 'CUSTOMER'
-                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md scale-[1.02]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <User className="w-3 h-3 shrink-0" />
@@ -162,13 +198,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               setAuthRole('DRIVER');
               setFeedbackMsg(null);
             }}
-            className={`py-2 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
+            className={`py-2.5 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
               authRole === 'DRIVER'
-                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md scale-[1.02]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
-            <span className="text-[11px] shrink-0">🛺</span>
+            <span className="text-[13px] shrink-0">🛺</span>
             <span className="truncate">Driver</span>
           </button>
 
@@ -178,10 +214,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               setAuthRole('ADMIN');
               setFeedbackMsg(null);
             }}
-            className={`py-2 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
+            className={`py-2.5 px-1 text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 transition-all ${
               authRole === 'ADMIN'
-                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#FCC016] text-[#1E1E1E] shadow-md scale-[1.02]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
             <Shield className="w-3 h-3 shrink-0" />
@@ -191,8 +227,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
       </div>
 
       {/* Main Authentication Container */}
-      <div className="flex-1 p-4 sm:p-6 max-w-md w-full mx-auto flex flex-col justify-between">
-        <div className="bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border border-slate-200/80 space-y-4">
+      <div className="flex-1 p-4 sm:p-5 max-w-md w-full mx-auto flex flex-col justify-between">
+        <div className="bg-white text-slate-900 rounded-3xl p-4 shadow-2xl border border-slate-200/60 space-y-3.5 animate-fade-in-up delay-500">
           {/* Sub-Tabs: Sign In vs Sign Up */}
           <div className="flex items-center justify-around border-b border-slate-200 pb-2.5">
             <button

@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @layer base {
   :root {
@@ -19,3 +20,117 @@
   }
 }
 
+/* ── LEAFLET CUSTOM STYLES ───────────────────────────────────────── */
+.leaflet-container {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  border-radius: inherit;
+}
+
+.fairway-tooltip {
+  background: #1E1E1E !important;
+  color: #FCC016 !important;
+  border: 1px solid #FCC016 !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.fairway-tooltip-meeting {
+  background: #FCC016 !important;
+  color: #1E1E1E !important;
+  border: 2px solid #1E1E1E !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+}
+
+.leaflet-tooltip-top::before {
+  border-top-color: #1E1E1E !important;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255,255,255,0.8) !important;
+  border-radius: 4px !important;
+  padding: 2px 5px !important;
+}
+
+/* ── SCAN PULSE ANIMATION for phase circles ─────────────────────── */
+@keyframes scan-pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.8; }
+}
+
+.leaflet-interactive.scan-active {
+  animation: scan-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── SMOOTH AUTO MARKER MOVEMENT ─────────────────────────────────── */
+.leaflet-marker-icon {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ── KEYFRAMES for Auth Screen cinematic entry ───────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(252,192,22,0.4); }
+  50%       { box-shadow: 0 0 0 16px rgba(252,192,22,0); }
+}
+
+@keyframes scanRing {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-scan-ring {
+  animation: scanRing 2s ease-out infinite;
+}
+
+.animate-float {
+  animation: floatBadge 3s ease-in-out infinite;
+}
+
+/* stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }

@@ -36,6 +36,15 @@
       3. Strict Women-Only filter exclusion.
       4. Shapley cooperative game cost allocation & budget balance ($\sum \phi_i = c(N)$).
       5. 100-request benchmark fleet simulation.
+  - **New High-Impact Upgrades Implemented**:
+    1. **Cinematic Opening Splash**: Glow headlamp beam, animated rickshaw, taxi-gold pulse waves, and smooth entrance (`SplashScreen.tsx`).
+    2. **Real Leaflet OpenStreetMap Engine**: Real tile rendering centered on Nashik coordinates with user GPS location, auto rickshaw movement, and corridor routing (`LiveMap.tsx`).
+    3. **Scrollable Booking Sheet & Clean Header Alignment**: Fixed header overflow, guaranteed name truncation, and smooth scrollable bottom sheet with zero cutoff.
+    4. **3-Phase 5-Minute Stranger Matching Radar**: Interactive full-screen radar scanner with 1.0 km (Phase 1) -> 1.2 km (Phase 2) -> 1.4 km (Phase 3) corridor scan, rotating beam, and candidate blips (`StrangerMatchingModal.tsx`).
+    5. **Centroid Mid Meeting Point Algorithm**: Calculates optimal gathering location for 3 commuters and snaps to recognized auto stand with walking ETA.
+    6. **Cross-Device Real-Time Synchronization**: `realtimeSync.ts` supporting simultaneous Driver + 3 Passengers across multiple mobile devices via Cloud SSE and BroadcastChannel.
+    7. **Tri-Lingual Localization**: Complete translations in English, Marathi (मराठी), and Hindi (हिंदी).
+    8. **Women Sakhi Auto Mode**: Guaranteed strict female-only pool filtering with safety indicators.
   - `npm run lint` (`tsc --noEmit`) and `npm run build` compiled with 0 errors.
 
 ## 2. Reproduction Commands

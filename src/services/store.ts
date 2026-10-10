@@ -30,6 +30,7 @@ import {
   calculateUrbanRoadDistanceKm,
   calculateUrbanTravelTimeMin,
 } from '../algorithms/routing';
+import { realtimeSync } from './realtimeSync';
 
 export interface AppState {
   language: 'en' | 'mr' | 'hi';
@@ -52,6 +53,9 @@ export interface AppState {
   paymentMethod: 'CASH' | 'CAPAY';
   isSearchingPartners: boolean;
   matchingSearchStep: string;
+  matchingPhase: 1 | 2 | 3;
+  matchingDiameterMeters: number;
+  showStrangerModal: boolean;
   activeRequest: RideRequest | null;
   activeProposal: MatchProposal | null;
   activeTrip: Trip | null;
@@ -92,6 +96,9 @@ const INITIAL_STATE: AppState = {
   paymentMethod: 'CASH',
   isSearchingPartners: false,
   matchingSearchStep: '',
+  matchingPhase: 1,
+  matchingDiameterMeters: 1000,
+  showStrangerModal: false,
   activeRequest: null,
   activeProposal: null,
   activeTrip: null,
@@ -215,6 +222,44 @@ function ensureSimulationLoop() {
 
 // Start simulation ticker
 ensureSimulationLoop();
+
+// Cross-Device Realtime Mesh Subscription
+realtimeSync.subscribe((msg) => {
+  let changed = false;
+
+  if (msg.type === 'DRIVER_ASSIGNED_TRIP' && msg.payload?.proposal) {
+    globalState.showDriverRidePopup = true;
+    globalState.pendingDriverRide = msg.payload.proposal;
+    globalState.simulatedNotification = `🔔 NEW AUTO RIDE! 3 passengers matched at ${msg.payload.proposal.meetingPoint.name}. Tap to accept!`;
+    changed = true;
+  } else if (msg.type === 'DRIVER_ACCEPTED_RIDE') {
+    if (globalState.activeTrip) {
+      globalState.activeTrip.state = 'EN_ROUTE_TO_MEETUP';
+      globalState.simulatedNotification = `🛺 Auto Kaka ${msg.senderName} confirmed ride and is en-route!`;
+      changed = true;
+    }
+  } else if (msg.type === 'PASSENGER_MARKED_READY') {
+    if (globalState.activeProposal) {
+      globalState.activeProposal.groupReadyStates = {
+        ...(globalState.activeProposal.groupReadyStates || {}),
+        [msg.senderId]: true,
+      };
+      changed = true;
+    }
+  } else if (msg.type === 'PAYMENT_REMINDER_SENT') {
+    globalState.simulatedNotification = `💰 Fare Reminder: ${msg.payload?.message || 'Please keep fare ready for Auto Kaka!'}`;
+    changed = true;
+  } else if (msg.type === 'TRIP_STAGE_CHANGED' && msg.payload?.state) {
+    if (globalState.activeTrip) {
+      globalState.activeTrip.state = msg.payload.state;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    notify();
+  }
+});
 
 export function useFairwayStore() {
   const [state, setState] = useState<AppState>(globalState);
@@ -704,6 +749,18 @@ export function useFairwayStore() {
     globalState.pendingDriverRide = globalState.activeProposal;
     globalState.showDriverRidePopup = true; // Alerts driver app with incoming ride popup!
 
+    // Broadcast across multiple physical devices & tabs
+    realtimeSync.broadcast({
+      type: 'DRIVER_ASSIGNED_TRIP',
+      senderRole: 'PASSENGER',
+      senderId: globalState.currentUser.id,
+      senderName: globalState.currentUser.name,
+      payload: {
+        proposal: globalState.activeProposal,
+        trip,
+      },
+    });
+
     globalState.simulatedNotification = `🛺 Auto Booked! Group ID: ${groupId} (Ride OTP: ${otp}). Assignment dispatched to Auto Kaka ${trip.driverName}!`;
     notify();
 
@@ -717,6 +774,22 @@ export function useFairwayStore() {
         notify();
       }
     }, 4500);
+  };
+
+  /**
+   * Action: Confirm and book from Stranger Matching Modal
+   */
+  const confirmStrangerMatch = (strangers: any[], meetingPoint: LocationPoint, splitFares: any) => {
+    createMatchedGroupProposal();
+    if (globalState.activeProposal) {
+      globalState.activeProposal.meetingPoint = meetingPoint;
+    }
+    acceptProposal();
+  };
+
+  const setShowStrangerModal = (val: boolean) => {
+    globalState.showStrangerModal = val;
+    notify();
   };
 
   /**
@@ -753,6 +826,18 @@ export function useFairwayStore() {
     } else if (globalState.activeTrip) {
       globalState.activeTrip.state = 'EN_ROUTE_TO_MEETUP';
     }
+
+    // Broadcast across multiple devices!
+    realtimeSync.broadcast({
+      type: 'DRIVER_ACCEPTED_RIDE',
+      senderRole: 'DRIVER',
+      senderId: globalState.driverUser.id,
+      senderName: globalState.driverUser.name,
+      payload: {
+        driverLocation: globalState.driverLocation,
+      },
+    });
+
     if (globalState.activeTrip) {
       globalState.simulatedNotification = `🛺 Ride Accepted! Proceed to ${globalState.activeTrip.meetingPoint.name} to pick up 3 passengers.`;
     }
@@ -1249,6 +1334,8 @@ export function useFairwayStore() {
     setPaymentMethod,
     setDriverOnline,
     bookRide,
+    confirmStrangerMatch,
+    setShowStrangerModal,
     markPassengerReady,
     acceptProposal,
     rejectProposal,

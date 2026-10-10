@@ -33,14 +33,16 @@ import {
   ThumbsUp,
   TrendingDown,
   RotateCcw,
+  Globe,
 } from 'lucide-react';
 import { useFairwayStore } from '../../services/store';
 import { NASHIK_LOCATIONS, PROMOTIONS, VEHICLE_OPTIONS } from '../../data/mockData';
-import { MapCanvas } from '../common/MapCanvas';
+import { LiveMap } from '../common/LiveMap';
 import { RideHistoryModal } from './RideHistoryModal';
 import { ProfileContactsModal } from './ProfileContactsModal';
 import { OnboardingModal } from './OnboardingModal';
 import { AuthModal } from '../auth/AuthModal';
+import { StrangerMatchingModal } from './StrangerMatchingModal';
 import { TRANSLATIONS } from '../../services/i18n';
 
 export const CustomerApp: React.FC = () => {
@@ -54,6 +56,7 @@ export const CustomerApp: React.FC = () => {
     setWomenOnly,
     setPaymentMethod,
     bookRide,
+    confirmStrangerMatch,
     triggerMatchingTimeout,
     simulateInstantMatch,
     retryMatchingSearch,
@@ -80,6 +83,7 @@ export const CustomerApp: React.FC = () => {
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showStrangerScanner, setShowStrangerScanner] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showShapleyModal, setShowShapleyModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
@@ -98,77 +102,78 @@ export const CustomerApp: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col bg-[#F8F9FA] relative">
-      {/* App Top Bar */}
-      <div className="h-14 px-4 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between z-30 shrink-0">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowDrawer(true)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-          <div>
-            <span className="text-[10px] text-slate-400 font-medium">Nashik District · Passenger</span>
-            <h2 className="text-sm font-bold text-slate-900 leading-tight flex items-center gap-1.5">
-              <span>Namaste, {state.currentUser.name}!</span>
-            </h2>
-          </div>
+      {/* ── App Top Bar ── FIXED ALIGNMENT: hamburger | name | language | sakhi | logout+settings */}
+      <div className="h-14 px-3 bg-white/95 backdrop-blur-md border-b border-slate-100 flex items-center gap-2 z-30 shrink-0">
+        {/* Left: Hamburger + Name */}
+        <button
+          onClick={() => setShowDrawer(true)}
+          className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer shrink-0"
+        >
+          <Menu className="w-4.5 h-4.5" />
+        </button>
+
+        {/* Center: Name (flex-1 so it takes remaining space, truncates cleanly) */}
+        <div className="flex-1 min-w-0">
+          <span className="text-[10px] text-slate-400 font-medium block leading-none">Nashik · Passenger</span>
+          <h2 className="text-sm font-black text-slate-900 leading-tight truncate">
+            Namaste, {state.currentUser.name.split(' ')[0]}! 👋
+          </h2>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {/* Quick Language Toggle */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold">
-            <button
-              onClick={() => setLanguage('en')}
-              className={`px-1.5 py-0.5 rounded cursor-pointer ${state.language === 'en' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500'}`}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => setLanguage('mr')}
-              className={`px-1.5 py-0.5 rounded cursor-pointer ${state.language === 'mr' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500'}`}
-            >
-              मराठी
-            </button>
-            <button
-              onClick={() => setLanguage('hi')}
-              className={`px-1.5 py-0.5 rounded cursor-pointer ${state.language === 'hi' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500'}`}
-            >
-              हिंदी
-            </button>
-          </div>
-
-          {/* Women-only active indicator - STRICTLY FEMALE ONLY */}
-          {state.currentUser.gender === 'female' && state.womenOnlyPreference && (
-            <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Shield className="w-2.5 h-2.5" />
-              Women Sakhi
-            </span>
-          )}
-
+        {/* Right: Language pill */}
+        <div className="flex items-center bg-slate-100 p-0.5 rounded-lg text-[10px] font-bold shrink-0">
           <button
-            onClick={logoutCustomer}
-            title="Log Out / Switch User"
-            className="w-7 h-7 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-200 cursor-pointer transition-colors"
+            onClick={() => setLanguage('en')}
+            className={`px-1.5 py-0.5 rounded cursor-pointer transition-all ${state.language === 'en' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <LogOut className="w-3.5 h-3.5 text-amber-800" />
+            EN
           </button>
-
           <button
-            onClick={() => setActiveTab('SAFETY')}
-            title="Safety & Settings"
-            className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 cursor-pointer transition-colors"
+            onClick={() => setLanguage('mr')}
+            className={`px-1.5 py-0.5 rounded cursor-pointer transition-all ${state.language === 'mr' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            <Settings className="w-3.5 h-3.5" />
+            मर
+          </button>
+          <button
+            onClick={() => setLanguage('hi')}
+            className={`px-1.5 py-0.5 rounded cursor-pointer transition-all ${state.language === 'hi' ? 'bg-[#FCC016] text-slate-950 font-black shadow-xs' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            हि
           </button>
         </div>
+
+        {/* Women-only active indicator */}
+        {state.currentUser.gender === 'female' && state.womenOnlyPreference && (
+          <span className="shrink-0 text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-purple-200">
+            <Shield className="w-2.5 h-2.5" />
+            <span>Sakhi</span>
+          </span>
+        )}
+
+        {/* Logout */}
+        <button
+          onClick={logoutCustomer}
+          title="Log Out"
+          className="w-8 h-8 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-200 cursor-pointer transition-colors shrink-0"
+        >
+          <LogOut className="w-3.5 h-3.5 text-amber-800" />
+        </button>
+
+        {/* Settings */}
+        <button
+          onClick={() => setActiveTab('SAFETY')}
+          title="Safety & Settings"
+          className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 cursor-pointer transition-colors shrink-0"
+        >
+          <Settings className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       {/* Main View Area */}
       <div className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Interactive Map Section (Nashik District) */}
-        <div className="h-[46%] w-full relative">
-          <MapCanvas
+        {/* Real Leaflet Map Section */}
+        <div className="h-[45%] w-full relative">
+          <LiveMap
             pickupLocation={state.pickupLocation}
             destinationLocation={state.destinationLocation}
             meetingPoint={
@@ -179,19 +184,13 @@ export const CustomerApp: React.FC = () => {
               state.activeTrip ? state.activeTrip.driverLocation : state.driverLocation
             }
             showVehicle={true}
+            showUserLocation={true}
+            scanPhase={state.isSearchingPartners ? (state.matchingPhase || 1) as any : 0}
           />
-
-          {/* Floating Map Overlay Pill */}
-          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full shadow-md border border-slate-200/80 flex items-center gap-2 z-20">
-            <span className="text-xs">🛺</span>
-            <span className="text-[11px] font-bold text-slate-800">
-              Nashik Auto Network · Godavari Zone
-            </span>
-          </div>
 
           {/* Live GPS movement badge */}
           {state.activeTrip && state.activeTrip.state === 'DRIVER_ASSIGNED' && (
-            <div className="absolute bottom-3 left-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-20">
+            <div className="absolute bottom-3 left-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-[999]">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>Live GPS: Auto approaching {state.activeTrip.meetingPoint.name}</span>
             </div>
@@ -886,17 +885,31 @@ export const CustomerApp: React.FC = () => {
                 </button>
               </div>
 
-              {/* PRIMARY BOOK A RIDE BUTTON */}
-              <button
-                type="button"
-                onClick={bookRide}
-                className="w-full py-3.5 bg-[#1E1E1E] hover:bg-black text-white font-black text-sm rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>{t.bookShareAuto || 'Book Share-Auto'}</span>
-                <span className="text-[#FCC016] text-xs">
-                  (Pool & Save up to 54%)
-                </span>
-              </button>
+              {/* PRIMARY ACTION BUTTONS: FIND STRANGERS (5-MIN RADAR) & DIRECT SHARE AUTO */}
+              <div className="space-y-2 pt-2 pb-8">
+                <button
+                  type="button"
+                  onClick={() => setShowStrangerScanner(true)}
+                  className="w-full py-3.5 bg-gradient-to-r from-amber-500 via-[#FCC016] to-amber-400 hover:from-amber-450 hover:to-amber-350 active:scale-[0.98] text-slate-950 font-black text-sm rounded-2xl shadow-lg border border-amber-300 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Users className="w-4.5 h-4.5 stroke-[2.5]" />
+                  <span>{t.findStrangers || 'Find Strangers for Ride'}</span>
+                  <span className="text-[10px] bg-slate-950 text-[#FCC016] px-2 py-0.5 rounded font-bold font-mono">
+                    5-Min Radar
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={bookRide}
+                  className="w-full py-3 bg-[#1E1E1E] hover:bg-black text-white font-bold text-xs rounded-xl shadow-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>{t.bookShareAuto || 'Direct Share-Auto Pool'}</span>
+                  <span className="text-[#FCC016]">
+                    (Pool & Save up to 54%)
+                  </span>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -943,18 +956,89 @@ export const CustomerApp: React.FC = () => {
                     setActiveTab('BOOK');
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <MapPin className="w-4 h-4 text-slate-500" />
                   <span>Book Share-Auto</span>
                 </button>
+
+                {/* Find Strangers for Ride */}
+                <button
+                  onClick={() => {
+                    setShowDrawer(false);
+                    setShowStrangerScanner(true);
+                  }}
+                  className="w-full p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 font-bold flex items-center justify-between text-left cursor-pointer border border-amber-200"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Users className="w-4 h-4 text-amber-600" />
+                    <span>{t.findStrangers || 'Find Strangers for Ride'}</span>
+                  </div>
+                  <span className="text-[9px] bg-[#FCC016] text-slate-950 px-1.5 py-0.5 rounded font-black font-mono">
+                    5-MIN
+                  </span>
+                </button>
+
+                {/* Women-Only Sakhi Mode Quick Toggle */}
+                <div className="w-full p-2.5 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-purple-600" />
+                    <div>
+                      <div className="text-xs font-bold text-purple-950">Mahila Sakhi Pool</div>
+                      <div className="text-[10px] text-purple-700">Strictly verified women only</div>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={state.womenOnlyPreference}
+                      onChange={(e) => setWomenOnly(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-8 h-4 bg-purple-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                </div>
+
+                {/* Language Switcher in Drawer */}
+                <div className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-slate-700">
+                    <Globe className="w-4 h-4 text-slate-500" />
+                    <span className="text-xs font-bold">Language (भाषा)</span>
+                  </div>
+                  <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
+                    <button
+                      onClick={() => setLanguage('en')}
+                      className={`px-1.5 py-0.5 rounded cursor-pointer ${
+                        state.language === 'en' ? 'bg-[#FCC016] text-slate-950 font-black' : 'text-slate-500'
+                      }`}
+                    >
+                      EN
+                    </button>
+                    <button
+                      onClick={() => setLanguage('mr')}
+                      className={`px-1.5 py-0.5 rounded cursor-pointer ${
+                        state.language === 'mr' ? 'bg-[#FCC016] text-slate-950 font-black' : 'text-slate-500'
+                      }`}
+                    >
+                      मराठी
+                    </button>
+                    <button
+                      onClick={() => setLanguage('hi')}
+                      className={`px-1.5 py-0.5 rounded cursor-pointer ${
+                        state.language === 'hi' ? 'bg-[#FCC016] text-slate-950 font-black' : 'text-slate-500'
+                      }`}
+                    >
+                      हिंदी
+                    </button>
+                  </div>
+                </div>
 
                 <button
                   onClick={() => {
                     setShowHistoryModal(true);
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <History className="w-4 h-4 text-slate-500" />
                   <span>Nashik Ride History ({state.pastRides.length})</span>
@@ -965,7 +1049,7 @@ export const CustomerApp: React.FC = () => {
                     setShowProfileModal(true);
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <User className="w-4 h-4 text-slate-500" />
                   <span>Profile & Trusted Contacts</span>
@@ -976,7 +1060,7 @@ export const CustomerApp: React.FC = () => {
                     setShowAuthModal(true);
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-amber-50 text-amber-900 font-bold flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-amber-50 text-amber-900 font-bold flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <LogIn className="w-4 h-4 text-amber-600" />
                   <span>Login / Switch Commuter</span>
@@ -984,21 +1068,10 @@ export const CustomerApp: React.FC = () => {
 
                 <button
                   onClick={() => {
-                    setShowDrawer(false);
-                    logoutCustomer();
-                  }}
-                  className="w-full p-2.5 rounded-xl hover:bg-rose-50 text-rose-700 font-bold flex items-center gap-2.5 text-left"
-                >
-                  <LogOut className="w-4 h-4 text-rose-600" />
-                  <span>Log Out (बाहेर पडा)</span>
-                </button>
-
-                <button
-                  onClick={() => {
                     setActiveTab('PROMOTIONS');
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <Gift className="w-4 h-4 text-slate-500" />
                   <span>Nashik Auto Promotions</span>
@@ -1009,7 +1082,7 @@ export const CustomerApp: React.FC = () => {
                     setShowOnboardingModal(true);
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <HelpCircle className="w-4 h-4 text-slate-500" />
                   <span>How FAIRWAY Works</span>
@@ -1020,10 +1093,21 @@ export const CustomerApp: React.FC = () => {
                     setActiveTab('SAFETY');
                     setShowDrawer(false);
                   }}
-                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left"
+                  className="w-full p-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2.5 text-left cursor-pointer"
                 >
                   <Shield className="w-4 h-4 text-slate-500" />
                   <span>Safety, Terms & Police SOS</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowDrawer(false);
+                    logoutCustomer();
+                  }}
+                  className="w-full p-2.5 rounded-xl hover:bg-rose-50 text-rose-700 font-bold flex items-center gap-2.5 text-left cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4 text-rose-600" />
+                  <span>Log Out (बाहेर पडा)</span>
                 </button>
               </div>
             </div>
@@ -1253,6 +1337,20 @@ export const CustomerApp: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* STRANGER MATCHING 5-MIN RADAR MODAL */}
+      <StrangerMatchingModal
+        isOpen={showStrangerScanner}
+        onClose={() => setShowStrangerScanner(false)}
+        pickupLocation={state.pickupLocation}
+        destinationLocation={state.destinationLocation}
+        womenOnly={state.womenOnlyPreference}
+        language={state.language}
+        onConfirmMatch={(strangers, meetingPoint, splitFares) => {
+          confirmStrangerMatch(strangers, meetingPoint, splitFares);
+          setShowStrangerScanner(false);
+        }}
+      />
     </div>
   );
 };
