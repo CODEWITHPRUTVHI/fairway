@@ -28,6 +28,7 @@ export interface VehicleOption {
   iconType: 'car4' | 'car7' | 'taxi4';
   description: string;
   discountTag?: string;
+  perKmRate?: number;
 }
 
 export interface RideRequest {

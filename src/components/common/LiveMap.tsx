@@ -395,14 +395,14 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
       {/* Live GPS badge */}
       {userLocation && (
-        <div className="absolute bottom-10 left-2 bg-blue-600 text-white text-[10px] font-mono px-2 py-1 rounded-full shadow-md flex items-center gap-1 z-[1000] pointer-events-none">
+        <div className="absolute top-12 left-2 bg-blue-600 text-white text-[10px] font-mono px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5 z-[1000] pointer-events-none">
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
           <span>Live GPS Active</span>
         </div>
       )}
 
       {!userLocation && showUserLocation && (
-        <div className="absolute bottom-10 left-2 bg-slate-700 text-white text-[10px] px-2 py-1 rounded-full shadow z-[1000] pointer-events-none">
+        <div className="absolute top-12 left-2 bg-slate-700/90 text-white text-[10px] px-2.5 py-1 rounded-full shadow z-[1000] pointer-events-none">
           📡 Allow location for live tracking
         </div>
       )}

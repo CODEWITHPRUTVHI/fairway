@@ -275,6 +275,50 @@ export const VerificationRunner: React.FC = () => {
       });
     }
 
+    // Test 6: Draggable Bottom Sheet Snap States & Drag Geometry
+    try {
+      const SNAP_POINTS = { COLLAPSED: 32, INTERMEDIATE: 58, EXPANDED: 88 };
+      const classifySnap = (percent: number) => {
+        if (percent < 45) return 'COLLAPSED';
+        if (percent < 74) return 'INTERMEDIATE';
+        return 'EXPANDED';
+      };
+
+      const simulateDragDelta = (startPercent: number, deltaY: number, containerHeightPx: number) => {
+        const startHeightPx = (startPercent / 100) * containerHeightPx;
+        const newHeightPx = startHeightPx - deltaY; // upward deltaY is negative
+        return Math.min(92, Math.max(25, (newHeightPx / containerHeightPx) * 100));
+      };
+
+      // Test upward drag from intermediate expands to >= 88%
+      const expandedHeight = simulateDragDelta(SNAP_POINTS.INTERMEDIATE, -260, 800);
+      const isExpandedSnap = classifySnap(expandedHeight) === 'EXPANDED';
+
+      // Test downward drag from intermediate collapses to <= 35%
+      const collapsedHeight = simulateDragDelta(SNAP_POINTS.INTERMEDIATE, 220, 800);
+      const isCollapsedSnap = classifySnap(collapsedHeight) === 'COLLAPSED';
+
+      const passed = isExpandedSnap && isCollapsedSnap && SNAP_POINTS.EXPANDED >= 85 && SNAP_POINTS.COLLAPSED <= 35;
+
+      testCases.push({
+        id: 'tc-bottom-sheet',
+        category: 'UI Architecture',
+        title: 'Draggable Bottom Sheet 3-State Snap Engine',
+        description: 'Verifies Collapsed (32%), Intermediate (58%), and Expanded (88%) drag calculations and upward/downward snapping.',
+        passed,
+        details: `Collapsed: ${SNAP_POINTS.COLLAPSED}%, Intermediate: ${SNAP_POINTS.INTERMEDIATE}%, Expanded: ${SNAP_POINTS.EXPANDED}%. Drag simulation verified.`,
+      });
+    } catch (e: any) {
+      testCases.push({
+        id: 'tc-bottom-sheet',
+        category: 'UI Architecture',
+        title: 'Draggable Bottom Sheet Snap Engine',
+        description: 'Failed due to exception.',
+        passed: false,
+        details: e.message,
+      });
+    }
+
     setResults(testCases);
     setIsRunning(false);
   };

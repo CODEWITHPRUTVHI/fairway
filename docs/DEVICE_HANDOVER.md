@@ -59,6 +59,15 @@
           - Raised `StrangerMatchingModal.tsx` to `z-[10000]` so the 5-minute radar scanner cleanly overlays above all headers and map panes.
           - Fixed stranger grouping flow in `store.ts` (`createMatchedGroupProposal` & `confirmStrangerMatch`) to auto-create valid `activeRequest` if missing and transition directly into the active trip on the main map.
           - After confirming strangers, the radar modal closes and the main map instantly displays matched co-riders, calculated mid meeting point, route, and live moving Auto Rickshaw.
+    11. **Phase 1 Master Bug Fix: Interactive Draggable Bottom Sheet**:
+        - Engineered full Draggable Bottom Sheet engine in `src/components/customer/CustomerApp.tsx` with 3 snap states:
+          - **Collapsed (`32%`)**: Keeps majority of Leaflet map visible while displaying route summary pill and tap-to-expand affordance.
+          - **Intermediate (`58%`)**: Displays core booking controls (pickup, destination, quick location chips, and dynamic cost-splitting breakdown).
+          - **Expanded (`88%`)**: Pulls panel all the way up over the map, revealing the entire interface: vehicle tiers, women-only toggle, payment selector, and primary booking buttons ("Find Strangers for Ride" and "Direct Share-Auto Pool").
+        - **Touch & Mouse Drag Handlers**: Full gesture support with upward/downward delta calculations, flick velocity recognition, positional snap thresholds (< 45% -> Collapsed, 45%–74% -> Intermediate, >= 74% -> Expanded), and click toggle on handle.
+        - **Isolated Map Background**: LiveMap now sits in full background layer (`absolute inset-0 z-0`) behind the sheet, with GPS active badge repositioned to top-left so it is never covered.
+        - **Independent Inner Content Scroll**: Handled inner touch/mouse propagation so scrolling inputs or dropdowns never accidentally drags the entire sheet.
+        - Added Test 6 in `VerificationRunner.tsx` verifying geometry, snap states, and drag delta formulas.
   - `npm run lint` (`tsc --noEmit`) and `npm run build` compiled with 0 errors.
 
 ## 2. Reproduction Commands

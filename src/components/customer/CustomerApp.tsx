@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Menu,
   Settings,
@@ -13,6 +13,8 @@ import {
   Share2,
   Phone,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Gift,
   Coins,
   ArrowLeft,
@@ -88,6 +90,142 @@ export const CustomerApp: React.FC = () => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [showShapleyModal, setShowShapleyModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
+
+  // ── DRAGGABLE BOTTOM SHEET ENGINE (COLLAPSED 32%, INTERMEDIATE 58%, EXPANDED 88%) ──
+  type SheetSnap = 'COLLAPSED' | 'INTERMEDIATE' | 'EXPANDED';
+  const SNAP_PERCENTAGES: Record<SheetSnap, number> = {
+    COLLAPSED: 32,
+    INTERMEDIATE: 58,
+    EXPANDED: 88,
+  };
+
+  const [sheetSnap, setSheetSnap] = useState<SheetSnap>('INTERMEDIATE');
+  const [sheetHeightPercent, setSheetHeightPercent] = useState<number>(58);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragStartYRef = useRef<number>(0);
+  const dragStartHeightPxRef = useRef<number>(0);
+  const isDraggingRef = useRef<boolean>(false);
+  const hasMovedRef = useRef<boolean>(false);
+  const contentScrollRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize snap position when snap changes
+  useEffect(() => {
+    if (!isDragging) {
+      setSheetHeightPercent(SNAP_PERCENTAGES[sheetSnap]);
+    }
+  }, [sheetSnap, isDragging]);
+
+  const startDrag = useCallback((clientY: number) => {
+    if (!containerRef.current) return;
+    const containerHeight = containerRef.current.clientHeight;
+    if (containerHeight <= 0) return;
+
+    dragStartYRef.current = clientY;
+    dragStartHeightPxRef.current = (sheetHeightPercent / 100) * containerHeight;
+    isDraggingRef.current = true;
+    hasMovedRef.current = false;
+    setIsDragging(true);
+  }, [sheetHeightPercent]);
+
+  const updateDrag = useCallback((clientY: number) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
+    const containerHeight = containerRef.current.clientHeight;
+    if (containerHeight <= 0) return;
+
+    const deltaY = clientY - dragStartYRef.current;
+    if (Math.abs(deltaY) > 5) {
+      hasMovedRef.current = true;
+    }
+
+    // Upward drag (negative deltaY) increases bottom sheet height
+    const newHeightPx = dragStartHeightPxRef.current - deltaY;
+    const newPercent = Math.min(92, Math.max(25, (newHeightPx / containerHeight) * 100));
+    setSheetHeightPercent(newPercent);
+  }, []);
+
+  const endDrag = useCallback((clientY?: number) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+
+    if (!containerRef.current) return;
+    const currentPercent = sheetHeightPercent;
+
+    let targetSnap: SheetSnap = 'INTERMEDIATE';
+    if (clientY !== undefined && hasMovedRef.current) {
+      const deltaY = clientY - dragStartYRef.current;
+      // Flick up
+      if (deltaY < -50) {
+        targetSnap = sheetSnap === 'COLLAPSED' ? 'INTERMEDIATE' : 'EXPANDED';
+        setSheetSnap(targetSnap);
+        setSheetHeightPercent(SNAP_PERCENTAGES[targetSnap]);
+        return;
+      }
+      // Flick down
+      if (deltaY > 50) {
+        targetSnap = sheetSnap === 'EXPANDED' ? 'INTERMEDIATE' : 'COLLAPSED';
+        setSheetSnap(targetSnap);
+        setSheetHeightPercent(SNAP_PERCENTAGES[targetSnap]);
+        return;
+      }
+    }
+
+    if (currentPercent < 45) {
+      targetSnap = 'COLLAPSED';
+    } else if (currentPercent < 74) {
+      targetSnap = 'INTERMEDIATE';
+    } else {
+      targetSnap = 'EXPANDED';
+    }
+
+    setSheetSnap(targetSnap);
+    setSheetHeightPercent(SNAP_PERCENTAGES[targetSnap]);
+  }, [sheetHeightPercent, sheetSnap]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    startDrag(e.clientY);
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      updateDrag(moveEvent.clientY);
+    };
+
+    const onMouseUp = (upEvent: MouseEvent) => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      endDrag(upEvent.clientY);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  }, [startDrag, updateDrag, endDrag]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      startDrag(e.touches[0].clientY);
+    }
+  }, [startDrag]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      updateDrag(e.touches[0].clientY);
+    }
+  }, [updateDrag]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const clientY = e.changedTouches[0]?.clientY;
+    endDrag(clientY);
+  }, [endDrag]);
+
+  const handleHandleClick = () => {
+    if (hasMovedRef.current) return;
+    setSheetSnap((prev) => {
+      if (prev === 'COLLAPSED') return 'INTERMEDIATE';
+      if (prev === 'INTERMEDIATE') return 'EXPANDED';
+      return 'COLLAPSED';
+    });
+  };
 
   // Quick preset destinations in Nashik
   const handleQuickSelect = (locId: string) => {
@@ -185,10 +323,9 @@ export const CustomerApp: React.FC = () => {
       </div>
 
       {/* Main View Area */}
-      <div className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Real Leaflet Map Section */}
-        {/* Real Leaflet Map Section (Constrained height with strict isolation) */}
-        <div className="h-[38%] min-h-[190px] w-full relative z-0 isolate overflow-hidden shrink-0">
+      <div ref={containerRef} className="flex-1 relative overflow-hidden w-full h-[calc(100%-3.5rem)]">
+        {/* Real Leaflet Map Section (Full background layer behind sheet) */}
+        <div className="absolute inset-0 z-0 isolate overflow-hidden">
           <LiveMap
             pickupLocation={state.pickupLocation}
             destinationLocation={state.destinationLocation}
@@ -206,17 +343,74 @@ export const CustomerApp: React.FC = () => {
 
           {/* Live GPS movement badge */}
           {state.activeTrip && state.activeTrip.state === 'DRIVER_ASSIGNED' && (
-            <div className="absolute bottom-3 left-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-10">
+            <div className="absolute top-14 right-3 bg-slate-900/90 text-[#FCC016] text-[10px] font-mono px-2.5 py-1 rounded-full shadow-lg border border-amber-400/40 flex items-center gap-1.5 z-10 pointer-events-none">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Live GPS: Auto approaching {state.activeTrip.meetingPoint.name}</span>
+              <span>Auto en-route to {state.activeTrip.meetingPoint.name}</span>
             </div>
           )}
         </div>
 
-        {/* Dynamic Bottom Sheet Container (Full smooth touch scroll with bottom padding) */}
-        <div className="flex-1 min-h-0 bg-white rounded-t-3xl shadow-2xl border-t border-slate-100 overflow-y-auto overscroll-contain px-4 py-3 pb-28 flex flex-col z-10 relative">
-          {/* Subtle Touch Drag Indicator */}
-          <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-2 shrink-0 cursor-grab" />
+        {/* Dynamic Draggable Bottom Sheet Container */}
+        <div
+          style={{ height: `${sheetHeightPercent}%` }}
+          className={`absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl shadow-[0_-8px_32px_rgba(0,0,0,0.18)] border-t border-slate-200/90 flex flex-col will-change-[height] ${
+            isDragging ? '' : 'transition-[height] duration-300 ease-out'
+          }`}
+        >
+          {/* Draggable Handle Header (Touch & Mouse Drag Area + Tap Toggle) */}
+          <div
+            className="w-full pt-2.5 pb-2 px-4 cursor-grab active:cursor-grabbing select-none shrink-0 flex flex-col items-center border-b border-slate-100 bg-white rounded-t-3xl"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={handleHandleClick}
+          >
+            {/* Real Draggable Handle Pill */}
+            <div className="w-12 h-1.5 bg-slate-300 rounded-full hover:bg-slate-400 active:bg-[#FCC016] transition-colors" />
+
+            {/* Quick State Pill & Label */}
+            <div className="w-full flex items-center justify-between mt-1 text-[11px] font-bold text-slate-500">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs shrink-0">🛺</span>
+                <span className="text-slate-800 font-extrabold truncate">
+                  {sheetSnap === 'COLLAPSED'
+                    ? `${state.pickupLocation.name.split('(')[0].trim()} → ${state.destinationLocation.name.split('(')[0].trim()}`
+                    : t.whereTo || 'Where to in Nashik?'}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleHandleClick();
+                }}
+                className="flex items-center gap-1 text-[10px] text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 shrink-0 font-bold cursor-pointer transition-colors"
+              >
+                <span>
+                  {sheetSnap === 'COLLAPSED'
+                    ? 'Tap to Expand'
+                    : sheetSnap === 'EXPANDED'
+                    ? 'Tap to Minimize'
+                    : 'Drag or Tap'}
+                </span>
+                {sheetSnap === 'EXPANDED' ? (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Independent Scrollable Content Area */}
+          <div
+            ref={contentScrollRef}
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-3 pb-28 select-text"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
           {/* SEARCHING RADAR STATE: LIVE 5-MINUTE BATCHING COUNTDOWN */}
           {state.isSearchingPartners ? (
             <div className="py-6 text-center space-y-3.5 animate-in fade-in">
@@ -934,6 +1128,7 @@ export const CustomerApp: React.FC = () => {
           )}
         </div>
       </div>
+    </div>
 
       {/* LOGIN / AUTH MODAL */}
       <AuthModal

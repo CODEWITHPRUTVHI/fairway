@@ -169,6 +169,6 @@ Key capabilities include:
 - **Dev Server**: `npm run dev` (running on port 3000)
 - **Authoritative Docs**: `docs/PRD.md` v1.0 & `docs/ARCHITECTURE.md` v1.0 aligned with system implementation.
 - **Three-Phase Mobile & Production Fixes**:
-  - **Phase 1**: Leaflet CSS z-index container isolation, dismissible top toast notification, mobile booking sheet scrollability, and side navigation drawer z-index `z-[9999]`.
+  - **Phase 1 (Draggable Bottom Sheet & Viewport Fix)**: Created 3-snap draggable bottom sheet (Collapsed 32%, Intermediate 58%, Expanded 88%) with upward/downward touch and mouse gestures, flick velocity detection, handle tap toggle, full background Leaflet map layer, independent scroll container, and 0 clipping of booking buttons.
   - **Phase 2**: Real-time RTO meter fare calculations based on pickup/drop locations; Driver app upgraded from SVG to Leaflet `LiveMap`.
   - **Phase 3**: Stranger matching modal elevated to `z-[10000]`, fallback ride request generation, dynamic co-rider fare breakdown, and smooth transition to main map with live moving auto.
