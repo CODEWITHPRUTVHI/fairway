@@ -45,6 +45,7 @@
     6. **Cross-Device Real-Time Synchronization**: `realtimeSync.ts` supporting simultaneous Driver + 3 Passengers across multiple mobile devices via Cloud SSE and BroadcastChannel.
     7. **Tri-Lingual Localization**: Complete translations in English, Marathi (मराठी), and Hindi (हिंदी).
     8. **Women Sakhi Auto Mode**: Guaranteed strict female-only pool filtering with safety indicators.
+    9. **Netlify Build Fix**: Added `.npmrc` (`legacy-peer-deps=true`), updated `netlify.toml` (`NPM_FLAGS = "--legacy-peer-deps"`), and eliminated peer conflicts in `package-lock.json` so Netlify's `npm ci` installs with zero errors.
   - `npm run lint` (`tsc --noEmit`) and `npm run build` compiled with 0 errors.
 
 ## 2. Reproduction Commands
